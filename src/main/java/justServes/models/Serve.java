@@ -31,14 +31,14 @@ public class Serve {
     }
 
     public void setAimX(double aimX) {
-        if (aimX < 0.0 || aimX > 1.0) {
+        if (!(aimX >= 0.0 && aimX <= 1.0)) {
             throw new IllegalArgumentException("aimX must be between 0 and 1");
         }
         this.aimX = aimX;
     }
 
     public void setAimY(double aimY) {
-        if (aimY < 0.0 || aimY > 1.0) {
+        if (!(aimY >= 0.0 && aimY <= 1.0)) {
             throw new IllegalArgumentException("aimY must be between 0 and 1");
         }
         this.aimY = aimY;

@@ -11,7 +11,7 @@ import java.util.List;
 public class Game {
     private int id;
     private Instant startedAt;
-    private List<Serve> serves;
+    private List<Serve> serves =  new ArrayList<>();
 
     public void setId(int id) {
         this.id = id;
