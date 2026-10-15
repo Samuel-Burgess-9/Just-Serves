@@ -38,3 +38,5 @@ build/
 
 # Keep the Gradle wrapper jar (the template ignores *.jar)
 !gradle/wrapper/gradle-wrapper.jar
+
+docs/packaging.md
