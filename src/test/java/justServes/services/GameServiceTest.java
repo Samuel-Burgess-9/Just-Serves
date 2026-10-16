@@ -136,4 +136,58 @@ class GameServiceTest {
         assertTrue(serveRepo.findByGame(game.getId()).isEmpty());
         assertTrue(service.undoLastServe().isEmpty());
     }
+
+    @Test
+    void resumeStartsAGameWhenNoneExists() {
+        Game game = service.resumeOrStartGame();
+
+        assertTrue(game.getId() > 0);
+        assertSame(game, service.getCurrentGame());
+    }
+
+    @Test
+    void resumeCarriesOnWithTheLatestGameAndItsServes() {
+        Game original = service.startGame();
+        logServeAt(0.1);
+        logServeAt(0.2);
+
+        GameService relaunched = new GameService(gameRepo, serveRepo);   // as if the app restarted
+        Game resumed = relaunched.resumeOrStartGame();
+
+        assertEquals(original.getId(), resumed.getId());
+        assertEquals(2, resumed.getServes().size());
+        assertEquals(0.1, resumed.getServes().get(0).getAimX());
+        assertEquals(0.2, resumed.getServes().get(1).getAimX());
+        assertEquals(1, gameRepo.findAll().size());
+    }
+
+    @Test
+    void resumeReusesAnEmptyLatestGame() {
+        service.startGame();
+
+        new GameService(gameRepo, serveRepo).resumeOrStartGame();
+
+        assertEquals(1, gameRepo.findAll().size());
+    }
+
+    @Test
+    void newGameKeepsTheCurrentGameWhileItIsEmpty() {
+        Game first = service.startGame();
+
+        assertSame(first, service.newGame());
+        assertEquals(1, gameRepo.findAll().size());
+    }
+
+    @Test
+    void newGameStartsAnotherOnceServesExist() {
+        Game first = service.startGame();
+        logServeAt(0.3);
+
+        Game second = service.newGame();
+
+        assertNotEquals(first.getId(), second.getId());
+        assertSame(second, service.getCurrentGame());
+        assertTrue(second.getServes().isEmpty());
+        assertEquals(1, serveRepo.findByGame(first.getId()).size());
+    }
 }

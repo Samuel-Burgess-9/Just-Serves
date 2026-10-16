@@ -101,7 +101,7 @@ public class RecordScreenController {
             return;
         }
         try {
-            gameService.startGame();
+            gameService.resumeOrStartGame();
         } catch (RepositoryException e) {
             showError("Could not start a new game", e.getMessage());
             return;
@@ -199,6 +199,7 @@ public class RecordScreenController {
                     + (receivers == 1 ? "1 receiver" : receivers + " receivers") + " · "
                     + pretty(sectorService.sectorOf(last.getAimX(), last.getAimY(), receivers)));
         }
+        newGameButton.setDisable(serves.isEmpty());
     }
 
     private void refreshControls() {
