@@ -1,0 +1,189 @@
+/* ---------- Palette: change the look of the whole app here ---------- */
+.root {
+    -app-bg:            #f3f5f7;
+    -app-panel:         #ffffff;
+    -app-border:        #dde2e7;
+    -app-text:          #1f2933;
+    -app-text-muted:    #6b7785;
+    -app-accent:        #e0662f;   /* echoes the court's orange */
+    -app-accent-strong: #b84a20;   /* filled buttons with white text: better contrast */
+    -app-accent-soft:   #fde8dc;
+    -app-on-accent: #ffffff;
+
+    -fx-background-color: -app-bg;
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 13px;
+    -fx-text-fill: -app-text;
+
+    /* Recolours the built-in selection and focus highlights */
+    -fx-accent: -app-accent;
+    -fx-focus-color: -app-accent;
+    -fx-faint-focus-color: transparent;
+}
+
+.label {
+    -fx-text-fill: -app-text;
+}
+
+/* ---------- Header and navigation ---------- */
+.header {
+    -fx-background-color: -app-panel;
+    -fx-border-color: transparent transparent -app-border transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.app-title {
+    -fx-font-size: 17px;
+    -fx-font-weight: bold;
+}
+
+.nav-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+    -fx-text-fill: -app-text-muted;
+    -fx-font-size: 14px;
+    -fx-padding: 8 14 8 14;
+    -fx-border-color: transparent transparent transparent transparent;
+    -fx-border-width: 0 0 3 0;
+    -fx-cursor: hand;
+}
+
+.nav-button:hover {
+    -fx-text-fill: -app-text;
+}
+
+.nav-button:selected {
+    -fx-text-fill: -app-accent-strong;
+    -fx-border-color: transparent transparent -app-accent transparent;
+}
+
+.nav-button:disabled {
+    -fx-opacity: 0.45;
+    -fx-cursor: default;
+}
+
+/* ---------- Top strip ---------- */
+.top-strip {
+    -fx-background-color: -app-bg;
+    -fx-border-color: transparent transparent -app-border transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.hint-label {
+    -fx-font-size: 14px;
+}
+
+.stats-label {
+    -fx-text-fill: -app-text-muted;
+}
+
+/* ---------- Side panels ---------- */
+.side-panel {
+    -fx-background-color: -app-panel;
+}
+
+.panel-title {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -app-text-muted;
+}
+
+.side-panel .toggle-button {
+    -fx-background-color: -app-bg;
+    -fx-background-radius: 6;
+    -fx-border-color: -app-border;
+    -fx-border-radius: 6;
+    -fx-text-fill: -app-text;
+    -fx-padding: 7 10 7 10;
+    -fx-cursor: hand;
+}
+
+.side-panel .toggle-button:hover {
+    -fx-background-color: -app-accent-soft;
+}
+
+.side-panel .toggle-button:focused {
+    -fx-border-color: -app-accent;
+}
+
+.side-panel .toggle-button:selected {
+    -fx-background-color: -app-accent-strong;
+    -fx-border-color: -app-accent-strong;
+    -fx-text-fill: -app-on-accent;
+    -fx-font-weight: bold;
+}
+
+/* ---------- Last serve card ---------- */
+.last-serve-card {
+    -fx-background-color: -app-bg;
+    -fx-background-radius: 8;
+    -fx-border-color: -app-border;
+    -fx-border-radius: 8;
+}
+
+.last-serve-outcome {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+.last-serve-detail {
+    -fx-text-fill: -app-text-muted;
+}
+
+/* ---------- Buttons (declared in this order: .record-button must come after .button) ---------- */
+.button {
+    -fx-background-color: -app-panel;
+    -fx-background-radius: 6;
+    -fx-border-color: -app-border;
+    -fx-border-radius: 6;
+    -fx-padding: 6 12 6 12;
+    -fx-cursor: hand;
+}
+
+.button:hover {
+    -fx-background-color: -app-accent-soft;
+}
+
+.button:disabled {
+    -fx-cursor: default;
+}
+
+.record-button {
+    -fx-background-color: -app-accent-strong;
+    -fx-border-color: -app-accent-strong;
+    -fx-text-fill: -app-on-accent;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 10 14 10 14;
+}
+
+.record-button:hover {
+    -fx-background-color: derive(-app-accent-strong, -10%);
+}
+
+.record-button:disabled {
+    -fx-background-color: -app-border;
+    -fx-border-color: -app-border;
+    -fx-text-fill: -app-text-muted;
+    -fx-opacity: 1;
+}
+
+.recent-list {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-fixed-cell-size: 26px;
+}
+
+.recent-list:focused {
+    -fx-background-color: transparent;
+}
+
+.recent-list .list-cell,
+.recent-list .list-cell:filled:hover,
+.recent-list .list-cell:filled:selected {
+    -fx-background-color: transparent;
+    -fx-text-fill: -app-text;
+    -fx-padding: 0;
+    -fx-graphic-text-gap: 8;
+}

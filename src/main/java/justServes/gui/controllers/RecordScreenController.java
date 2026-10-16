@@ -5,8 +5,11 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.shape.Circle;
+import justServes.AppConstants;
 import justServes.AppState;
 import justServes.gui.court.CourtView;
+import justServes.gui.court.OutcomeColours;
 import justServes.models.Game;
 import justServes.models.Outcome;
 import justServes.models.Serve;
@@ -16,6 +19,7 @@ import justServes.services.GameService;
 import justServes.services.SectorService;
 import justServes.util.CourtPoint;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +34,9 @@ public class RecordScreenController {
     @FXML private StackPane courtHolder;
     @FXML private ToggleButton topspinToggle, floatToggle, leftSpinToggle, rightSpinToggle;
     @FXML private ToggleButton aceToggle, shakyToggle, returnedToggle, outToggle;
+    private record RecentRow(int number, Outcome outcome, String sector) { }
+
+    @FXML private ListView<RecentRow> recentList;
 
     private final ToggleGroup serveTypeGroup = new ToggleGroup();
     private final ToggleGroup receiverGroup = new ToggleGroup();
@@ -76,6 +83,25 @@ public class RecordScreenController {
             }
         });
 
+        recentList.setPlaceholder(new Label());
+        recentList.setCellFactory(lv -> new ListCell<>() {
+            {
+                setMouseTransparent(true);   // display only: no selection, wheel scrolling still works
+            }
+
+            @Override
+            protected void updateItem(RecentRow row, boolean empty) {
+                super.updateItem(row, empty);
+                if (empty || row == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    setText("#" + row.number() + "  " + pretty(row.outcome()) + " · " + row.sector());
+                    setGraphic(new Circle(5, OutcomeColours.of(row.outcome())));   // javafx.scene.shape.Circle
+                }
+            }
+        });
+
         recordButton.setOnAction(e -> recordServe());
         undoButton.setOnAction(e -> undoLastServe());
         newGameButton.setOnAction(e -> startNewGame());
@@ -83,6 +109,8 @@ public class RecordScreenController {
 
     public void init(AppState state) {
         this.gameService = state.getGameService();
+        courtView.setTheme(state.getTheme().court());
+        state.themeProperty().addListener((obs, old, t) -> courtView.setTheme(t.court()));
         refreshView();
     }
 
@@ -201,6 +229,16 @@ public class RecordScreenController {
                     + (receivers == 1 ? "1 receiver" : receivers + " receivers") + " · "
                     + pretty(sectorService.sectorOf(last.getAimX(), last.getAimY(), receivers)));
         }
+
+        List<RecentRow> rows = new ArrayList<>();
+        int oldest = Math.max(0, serves.size() - AppConstants.RECENT_SERVES_SHOWN);
+        for (int i = serves.size() - 1; i >= oldest; i--) {
+            Serve s = serves.get(i);
+            rows.add(new RecentRow(i + 1, s.getOutcome(),
+                    pretty(sectorService.sectorOf(s.getAimX(), s.getAimY(), s.getReceiverCount()))));
+        }
+        recentList.getItems().setAll(rows);
+
         newGameButton.setDisable(serves.isEmpty());
     }
 

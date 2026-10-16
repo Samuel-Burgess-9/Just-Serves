@@ -11,7 +11,8 @@ public final class CourtThemes {
             Color.web("#f4925a"),          // surface
             null,                          // no image
             Color.WHITE,                   // border
-            Color.color(1, 1, 1, 0.55),    // zone lines
+            Color.color(1, 1, 1, 0.16),
+            Color.color(1, 1, 1, 0.28),   // zone lines
             Color.web("#222222"),          // net
             Color.web("#222222"),          // net label
             Color.WHITE,                   // marker outline

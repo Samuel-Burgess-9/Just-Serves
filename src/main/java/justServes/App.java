@@ -10,6 +10,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import justServes.gui.controllers.ShellController;
+import justServes.gui.theme.AppThemes;
 import justServes.repo.Database;
 
 import java.io.IOException;

@@ -3,6 +3,7 @@ package justServes.gui.court;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
+import justServes.AppConstants;
 import justServes.models.Serve;
 import justServes.services.Zone;
 import justServes.util.CourtBounds;
@@ -31,21 +32,28 @@ final class CourtPainter {
     }
 
     static void drawZones(GraphicsContext g, CourtBounds b, CourtTheme theme, List<Zone> zones) {
-        g.setStroke(theme.zoneLine());
-        g.setLineWidth(Math.max(1, b.width() * 0.002));
+        double inset = Math.max(1.5, b.width() * 0.004);   // gaps between tiles read as an overlay, not lines
+        double arc = Math.max(4, b.width() * 0.012);
+        g.setFill(theme.zoneFill());
+        g.setStroke(theme.zoneEdge());
+        g.setLineWidth(1);
         for (Zone z : zones) {
-            double x = CourtCoordinates.pixelX(z.xMin(), b);
-            double y = CourtCoordinates.pixelY(z.yMax(), b);   // a zone's top edge on screen is its yMax
-            g.strokeRect(x, y,
-                    (z.xMax() - z.xMin()) * b.width(),
-                    (z.yMax() - z.yMin()) * b.height());
+            double x = CourtCoordinates.pixelX(z.xMin(), b) + inset;
+            double y = CourtCoordinates.pixelY(z.yMax(), b) + inset;   // a zone's top edge on screen is its yMax
+            double w = (z.xMax() - z.xMin()) * b.width() - 2 * inset;
+            double h = (z.yMax() - z.yMin()) * b.height() - 2 * inset;
+            g.fillRoundRect(x, y, w, h, arc, arc);
+            g.strokeRoundRect(x, y, w, h, arc, arc);
         }
     }
 
-    static void drawBorder(GraphicsContext g, CourtBounds b, CourtTheme theme) {
-        g.setStroke(theme.border());
+    static void drawLines(GraphicsContext g, CourtBounds b, CourtTheme theme) {
+        g.setStroke(theme.lines());
         g.setLineWidth(Math.max(1.5, b.width() * 0.004));
         g.strokeRect(b.left(), b.top(), b.width(), b.height());
+
+        double attackY = CourtCoordinates.pixelY(AppConstants.COURT_ATTACK_LINE_Y, b);
+        g.strokeLine(b.left(), attackY, b.left() + b.width(), attackY);
     }
 
     /** y = 0 is the net, so it runs along the bottom edge. */

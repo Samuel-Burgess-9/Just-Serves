@@ -97,7 +97,7 @@ public class CourtView extends Pane {
         if (showZones) {
             CourtPainter.drawZones(g, b, theme, ReceiverLayouts.layoutFor(receiverCount));
         }
-        CourtPainter.drawBorder(g, b, theme);
+        CourtPainter.drawLines(g, b, theme);     // on top of the overlay
         CourtPainter.drawNet(g, b, theme);
         CourtPainter.drawServes(g, b, theme, serves);
         CourtPainter.drawPending(g, b, theme, pendingAim);
