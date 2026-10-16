@@ -10,8 +10,9 @@ public record CourtTheme(
         String name,
         Color surface,
         Image surfaceImage,
-        Color border,
-        Color zoneLine,
+        Color lines,          // border and attack line: crisp, opaque
+        Color zoneFill,       // overlay tiles: translucent
+        Color zoneEdge,       // overlay tile outline: translucent
         Color net,
         Color netLabel,
         Color markerOutline,
@@ -20,8 +21,8 @@ public record CourtTheme(
     public CourtTheme {
         Objects.requireNonNull(name, "name");
         Objects.requireNonNull(surface, "surface");
-        Objects.requireNonNull(border, "border");
-        Objects.requireNonNull(zoneLine, "zoneLine");
+        Objects.requireNonNull(lines, "lines");
+        Objects.requireNonNull(zoneEdge, "zoneEdge");
         Objects.requireNonNull(net, "net");
         Objects.requireNonNull(netLabel, "netLabel");
         Objects.requireNonNull(markerOutline, "markerOutline");

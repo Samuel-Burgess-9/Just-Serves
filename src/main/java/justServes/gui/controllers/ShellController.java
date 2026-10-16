@@ -6,6 +6,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import justServes.AppState;
 
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 
 public class ShellController {
+    public BorderPane root;
     @FXML private StackPane contentHolder;
     @FXML private ToggleGroup navGroup;
     @FXML private ToggleButton recordNav, analyzeNav, statsNav;
@@ -26,6 +28,8 @@ public class ShellController {
 
     public void init(AppState state) {
         this.state = state;
+        state.themeProperty().addListener((obs, old, t) -> root.setStyle(t.palette().toStyle()));
+        root.setStyle(state.getTheme().palette().toStyle());
         showRecordScreen();
     }
 

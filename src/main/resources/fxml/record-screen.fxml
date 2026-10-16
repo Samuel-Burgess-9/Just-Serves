@@ -117,7 +117,8 @@
                        styleClass="last-serve-outcome"/>
                 <Label fx:id="lastServeDetailLabel" wrapText="true"
                        styleClass="last-serve-detail"/>
-                <Region VBox.vgrow="ALWAYS"/>
+                <Label text="RECENT" styleClass="panel-title"/>
+                <ListView fx:id="recentList" styleClass="recent-list" VBox.vgrow="ALWAYS" focusTraversable="false"/>
                 <Button fx:id="undoButton" text="Undo last serve" disable="true"
                         maxWidth="Infinity"/>
             </VBox>
