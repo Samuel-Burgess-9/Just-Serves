@@ -14,6 +14,8 @@ import justServes.repo.Database;
 import java.io.IOException;
 import java.util.Objects;
 
+import static justServes.AppConstants.*;
+
 public class App extends Application {
     private Database database;
     @Override
@@ -26,8 +28,9 @@ public class App extends Application {
 
         Image logo = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/logo.png")));
         stage.getIcons().add(logo);
-
         stage.setScene(new Scene(root));
+        stage.setMinHeight(MIN_WINDOW_HEIGHT);
+        stage.setMinWidth(MIN_WINDOW_WIDTH);
         stage.setTitle("Just Serves");
         stage.show();
     }
