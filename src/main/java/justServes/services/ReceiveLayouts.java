@@ -1,6 +1,10 @@
 package justServes.services;
 
 import java.util.List;
+
+import static justServes.AppConstants.RECEIVER_MAX;
+import static justServes.AppConstants.RECEIVER_MIN;
+
 /**
  * class to get co-ordinate zones from sectors. Uses reciever numbers to compute zones.
  * Coordinates are from the server's perspective,
@@ -63,7 +67,7 @@ public class ReceiveLayouts {
      * @return a list of zones.
      */
     public static List<Zone> layoutFor(int receiverCount) {
-        if (receiverCount < 1 || receiverCount > 6) {
+        if (receiverCount < RECEIVER_MIN || receiverCount > RECEIVER_MAX) {
             throw new IllegalArgumentException(
                     "receiverCount must be between 1 and 6"
             );

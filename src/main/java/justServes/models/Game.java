@@ -21,7 +21,7 @@ public class Game {
         this.startedAt = startedAt;
     }
 
-    public void setServes(ArrayList<Serve> serves) {
+    public void setServes(List<Serve> serves) {
         this.serves = serves;
     }
 
@@ -35,5 +35,9 @@ public class Game {
 
     public int getId() {
         return id;
+    }
+
+    public void log(Serve currentServe) {
+        serves.add(currentServe);
     }
 }
