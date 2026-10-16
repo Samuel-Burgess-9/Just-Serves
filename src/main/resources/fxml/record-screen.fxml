@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="justServes.gui.controllers.RecordScreenController"
+            prefWidth="1100" prefHeight="694">
+
+
+
+    <!-- Top strip: hint, current-game stats, new game -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="16" styleClass="top-strip"
+              minHeight="48" prefHeight="48" maxHeight="48">
+            <padding>
+                <Insets left="16" right="16"/>
+            </padding>
+            <Label fx:id="hintLabel" text="Click the court to place a serve"
+                   maxWidth="Infinity" HBox.hgrow="ALWAYS" styleClass="hint-label"/>
+            <Label fx:id="gameStatsLabel" text="0 serves" styleClass="stats-label"/>
+            <Button fx:id="newGameButton" text="New game"/>
+        </HBox>
+    </top>
+
+    <!-- Left: sticky settings -->
+    <left>
+        <VBox spacing="12" styleClass="side-panel" prefWidth="240" minWidth="200" maxWidth="280">
+            <padding>
+                <Insets top="16" right="16" bottom="16" left="16"/>
+            </padding>
+            <Label text="SERVE TYPE" styleClass="panel-title"/>
+            <GridPane hgap="8" vgap="8">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0"/>
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0"/>
+                </columnConstraints>
+                <ToggleButton fx:id="topspinToggle" text="Topspin" selected="true"
+                              maxWidth="Infinity"
+                              GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                <ToggleButton fx:id="floatToggle" text="Float"
+                              maxWidth="Infinity"
+                              GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                <ToggleButton fx:id="leftSpinToggle" text="Left spin"
+                              maxWidth="Infinity"
+                              GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                <ToggleButton fx:id="rightSpinToggle" text="Right spin"
+                              maxWidth="Infinity"
+                              GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+            </GridPane>
+
+            <Label text="RECEIVERS" styleClass="panel-title"/>
+            <HBox spacing="6" fx:id="receiverBox">
+                <ToggleButton text="1" selected="true"
+                              maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                <ToggleButton text="2"
+                              maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                <ToggleButton text="3"
+                              maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                <ToggleButton text="4"
+                              maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                <ToggleButton text="5"
+                              maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                <ToggleButton text="6"
+                              maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+            </HBox>
+        </VBox>
+    </left>
+
+    <!-- Centre: the court (CourtView is added here in code) -->
+    <center>
+        <StackPane fx:id="courtHolder">
+            <padding>
+                <Insets top="16" right="16" bottom="16" left="16"/>
+            </padding>
+        </StackPane>
+    </center>
+
+    <!-- Right: outcome (top), last serve + undo (bottom) -->
+    <right>
+        <VBox spacing="16" styleClass="side-panel" prefWidth="240" minWidth="200" maxWidth="280">
+            <padding>
+                <Insets top="16" right="16" bottom="16" left="16"/>
+            </padding>
+
+            <VBox spacing="12">
+                <Label text="OUTCOME" styleClass="panel-title"/>
+                <GridPane hgap="8" vgap="8">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0"/>
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0"/>
+                    </columnConstraints>
+                    <ToggleButton fx:id="aceToggle" text="Ace"
+                                  maxWidth="Infinity"
+                                  GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                    <ToggleButton fx:id="shakyToggle" text="Shaky"
+                                  maxWidth="Infinity"
+                                  GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                    <ToggleButton fx:id="returnedToggle" text="Returned"
+                                  maxWidth="Infinity"
+                                  GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                    <ToggleButton fx:id="outToggle" text="Out"
+                                  maxWidth="Infinity"
+                                  GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                </GridPane>
+                <Button fx:id="recordButton" text="Record serve" disable="true"
+                        defaultButton="true" maxWidth="Infinity" styleClass="record-button"/>
+            </VBox>
+
+            <VBox spacing="8" styleClass="last-serve-card" VBox.vgrow="ALWAYS">
+                <padding>
+                    <Insets top="12" right="12" bottom="12" left="12"/>
+                </padding>
+                <Label text="LAST SERVE" styleClass="panel-title"/>
+                <Label fx:id="lastServeOutcomeLabel" text="No serves yet"
+                       styleClass="last-serve-outcome"/>
+                <Label fx:id="lastServeDetailLabel" wrapText="true"
+                       styleClass="last-serve-detail"/>
+                <Region VBox.vgrow="ALWAYS"/>
+                <Button fx:id="undoButton" text="Undo last serve" disable="true"
+                        maxWidth="Infinity"/>
+            </VBox>
+        </VBox>
+    </right>
+
+</BorderPane>
