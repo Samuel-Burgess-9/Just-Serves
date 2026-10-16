@@ -8,11 +8,7 @@
             fx:controller="justServes.gui.controllers.RecordScreenController"
             prefWidth="1100" prefHeight="694">
 
-    <fx:define>
-        <ToggleGroup fx:id="serveTypeGroup"/>
-        <ToggleGroup fx:id="receiverGroup"/>
-        <ToggleGroup fx:id="outcomeGroup"/>
-    </fx:define>
+
 
     <!-- Top strip: hint, current-game stats, new game -->
     <top>
