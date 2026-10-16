@@ -2,6 +2,9 @@ package justServes.models;
 
 import java.util.Objects;
 
+import static justServes.AppConstants.RECEIVER_MAX;
+import static justServes.AppConstants.RECEIVER_MIN;
+
 /**
  * Stores the serve data
  * @author Samuel Burgess
@@ -24,7 +27,7 @@ public class Serve {
     }
 
     public void setReceiverCount(int receiverCount) {
-        if (receiverCount < 1 || receiverCount > 6) {
+        if (receiverCount < RECEIVER_MIN || receiverCount > RECEIVER_MAX) {
             throw new IllegalArgumentException("receiverCount must be between 1 and 6");
         }
         this.receiverCount = receiverCount;

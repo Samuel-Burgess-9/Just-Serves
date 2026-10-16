@@ -16,9 +16,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static justServes.AppConstants.COURT_ASPECT_RATIO;
+
 public class CourtView extends Pane {
 
-    private static final double ASPECT_RATIO = 1.0;
+    private static final double ASPECT_RATIO = COURT_ASPECT_RATIO;
     private final Canvas canvas = new Canvas();
     private List<Serve> serves = List.of();
     private int receiverCount = 1;
