@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="justServes.gui.controllers.ShellController"
+            prefWidth="1100" prefHeight="750">
+
+    <fx:define>
+        <ToggleGroup fx:id="navGroup"/>
+    </fx:define>
+
+    <stylesheets>
+        <URL value="@../css/app.css"/>
+    </stylesheets>
+
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="16" styleClass="header"
+              minHeight="56" prefHeight="56" maxHeight="56">
+            <padding>
+                <Insets left="16" right="16"/>
+            </padding>
+            <!-- Swap this Label for an ImageView once the logo file exists -->
+            <Label text="just serves" styleClass="app-title"/>
+            <ToggleButton fx:id="recordNav" text="Record Serves" selected="true"
+                          toggleGroup="$navGroup" styleClass="nav-button"/>
+            <ToggleButton fx:id="analyzeNav" text="Analyze Game" disable="true"
+                          toggleGroup="$navGroup" styleClass="nav-button"/>
+            <ToggleButton fx:id="statsNav" text="Serving Stats" disable="true"
+                          toggleGroup="$navGroup" styleClass="nav-button"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button fx:id="exitButton" text="Exit" styleClass="exit-button"/>
+        </HBox>
+    </top>
+
+    <center>
+        <StackPane fx:id="contentHolder"/>
+    </center>
+
+</BorderPane>
