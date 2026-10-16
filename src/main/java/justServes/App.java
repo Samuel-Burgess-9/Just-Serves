@@ -7,10 +7,12 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import justServes.repo.Database;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class App extends Application {
     private Database database;
@@ -21,6 +23,9 @@ public class App extends Application {
                 getClass().getResource("/fxml/shell.fxml")
         );
         Parent root = loader.load();
+
+        Image logo = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/logo.png")));
+        stage.getIcons().add(logo);
 
         stage.setScene(new Scene(root));
         stage.setTitle("Just Serves");
