@@ -104,6 +104,8 @@
                                   maxWidth="Infinity"
                                   GridPane.columnIndex="1" GridPane.rowIndex="1"/>
                 </GridPane>
+                <Button fx:id="recordButton" text="Record serve" disable="true"
+                        defaultButton="true" maxWidth="Infinity" styleClass="record-button"/>
             </VBox>
 
             <VBox spacing="8" styleClass="last-serve-card" VBox.vgrow="ALWAYS">

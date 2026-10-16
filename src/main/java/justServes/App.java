@@ -9,6 +9,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import justServes.gui.controllers.ShellController;
 import justServes.repo.Database;
 
 import java.io.IOException;
@@ -17,14 +18,17 @@ import java.util.Objects;
 import static justServes.AppConstants.*;
 
 public class App extends Application {
-    private Database database;
+    private AppState state;
     @Override
     public void start(Stage stage) throws IOException {
-        database = Database.forUser();
+        state = new AppState(Database.forUser());
+        state.getGameService().startGame();
         FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("/fxml/shell.fxml")
         );
         Parent root = loader.load();
+        ShellController shell = loader.getController();
+        shell.init(state);
 
         Image logo = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/logo.png")));
         stage.getIcons().add(logo);
@@ -37,6 +41,8 @@ public class App extends Application {
 
     @Override
     public void stop() {
-        database.close();
+        if (state != null) {
+            state.close();
+        }
     }
 }

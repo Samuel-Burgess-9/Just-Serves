@@ -25,6 +25,7 @@ public class CourtView extends Pane {
     private List<Serve> serves = List.of();
     private int receiverCount = 1;
     private Consumer<CourtPoint> onCourtClicked = p -> { };
+    private CourtPoint pendingAim;
 
     public CourtView() {
         setPrefSize(400, 400);
@@ -51,6 +52,11 @@ public class CourtView extends Pane {
         redraw();
     }
 
+    public void setPendingAim(CourtPoint pendingAim) {
+        this.pendingAim = pendingAim;
+        redraw();
+    }
+
     private CourtBounds bounds() {
         return CourtCoordinates.fit(getWidth(), getHeight(), ASPECT_RATIO);   // never stored
     }
@@ -60,7 +66,9 @@ public class CourtView extends Pane {
         if (!b.contains(px, py)) {
             return;                                        // clicked a margin: ignore
         }
-        onCourtClicked.accept(CourtCoordinates.toCourt(px, py, b));
+        CourtPoint point = CourtCoordinates.toCourt(px, py, b);
+        setPendingAim(point);                              // draws the ring straight away
+        onCourtClicked.accept(point);
     }
 
     private void redraw() {
@@ -84,19 +92,38 @@ public class CourtView extends Pane {
             g.strokeRect(x, y, w, h);
         }
 
+        double netY = b.top() + b.height();
+        g.setStroke(Color.web("#222222"));
+        g.setLineWidth(4);
+        g.strokeLine(b.left(), netY, b.left() + b.width(), netY);
+
         // Markers: stored court coordinates converted with the CURRENT bounds
         for (Serve s : serves) {
             double px = CourtCoordinates.pixelX(s.getAimX(), b);
             double py = CourtCoordinates.pixelY(s.getAimY(), b);
             g.setFill(colorFor(s.getOutcome()));
+            g.setFill(colorFor(s.getOutcome()));
             g.fillOval(px - 5, py - 5, 10, 10);
+            g.setStroke(Color.WHITE);
+            g.setLineWidth(1.5);
+            g.strokeOval(px - 5, py - 5, 10, 10);
+        }
+
+        if (pendingAim != null) {
+            double px = CourtCoordinates.pixelX(pendingAim.x(), b);
+            double py = CourtCoordinates.pixelY(pendingAim.y(), b);
+            g.setStroke(Color.web("#1565c0"));
+            g.setLineWidth(3);
+            g.strokeOval(px - 9, py - 9, 18, 18);
+            g.setFill(Color.web("#1565c0"));
+            g.fillOval(px - 2.5, py - 2.5, 5, 5);
         }
     }
 
     private Color colorFor(Outcome outcome) {              // placeholder colours
         return switch (outcome) {
             case ACE -> Color.GOLD;
-            case SHAKY -> Color.ORANGE;
+            case SHAKY -> Color.MEDIUMPURPLE;
             case RETURNED -> Color.DODGERBLUE;
             case OUT -> Color.CRIMSON;
         };
