@@ -11,8 +11,8 @@ public class ZoneSweepTest {
     @ParameterizedTest
     @ValueSource(ints = {1, 2, 3, 4, 5, 6})
     void everyPointFallsInExactlyOneZone(int receivers) {
-        ReceiveLayouts ReceiveLayouts = new ReceiveLayouts();
-        List<Zone> zones = ReceiveLayouts.layoutFor(receivers);
+        ReceiverLayouts ReceiverLayouts = new ReceiverLayouts();
+        List<Zone> zones = ReceiverLayouts.layoutFor(receivers);
         for (int i = 0; i <= 200; i++) {
             for (int j = 0; j <= 200; j++) {
                 double x = i / 200.0;

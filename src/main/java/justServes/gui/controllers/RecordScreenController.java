@@ -6,19 +6,21 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import justServes.AppState;
-import justServes.gui.CourtView;
+import justServes.gui.court.CourtView;
 import justServes.models.Game;
 import justServes.models.Outcome;
 import justServes.models.Serve;
 import justServes.models.ServeType;
 import justServes.repo.RepositoryException;
-import justServes.services.CourtPoint;
 import justServes.services.GameService;
 import justServes.services.SectorService;
+import justServes.util.CourtPoint;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import static justServes.gui.controllers.TextHelper.pretty;
 
 public class RecordScreenController {
     @FXML private HBox receiverBox;
@@ -101,7 +103,7 @@ public class RecordScreenController {
             return;
         }
         try {
-            gameService.resumeOrStartGame();
+            gameService.startGame();
         } catch (RepositoryException e) {
             showError("Could not start a new game", e.getMessage());
             return;
@@ -214,11 +216,6 @@ public class RecordScreenController {
     private void onCourtClicked(CourtPoint point) {
         pendingAim = point;
         refreshControls();
-    }
-
-    private static String pretty(Enum<?> value) {
-        String text = value.name().toLowerCase().replace('_', ' ');
-        return Character.toUpperCase(text.charAt(0)) + text.substring(1);
     }
 
     private void showError(String header, String detail) {
