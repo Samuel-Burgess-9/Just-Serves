@@ -7,7 +7,6 @@ public final class AppConstants {
     private AppConstants() {}
 
     public static final String APP_NAME = "Just Serves";
-
     public static final int RECEIVER_MIN = 1;
     public static final int RECEIVER_MAX = 6;
     public static final int DEFAULT_RECEIVER_COUNT = 1;

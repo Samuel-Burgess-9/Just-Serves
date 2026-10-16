@@ -16,7 +16,7 @@ import static justServes.AppConstants.RECEIVER_MIN;
  * Each rectangle is half-open at its maximum boundary,
  * except at the court's outer edge (1.0).
  **/
-public class ReceiveLayouts {
+public class ReceiverLayouts {
 
     private static final List<Zone> DEFAULT_LAYOUT = List.of(
 

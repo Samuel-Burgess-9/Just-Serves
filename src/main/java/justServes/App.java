@@ -22,7 +22,7 @@ public class App extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         state = new AppState(Database.forUser());
-        state.getGameService().startGame();
+        state.getGameService().resumeOrStartGame();
         FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("/fxml/shell.fxml")
         );

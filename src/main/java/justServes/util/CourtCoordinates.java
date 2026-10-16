@@ -1,7 +1,5 @@
 package justServes.util;
 
-import justServes.services.CourtPoint;
-
 public final class CourtCoordinates {
 
     private CourtCoordinates() { }

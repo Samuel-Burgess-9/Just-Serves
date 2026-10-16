@@ -10,7 +10,7 @@ public class SectorService {
                     "Coordinates must be finite and within [0, 1]"
             );
         } else {
-            return ReceiveLayouts.layoutFor(receiverCount).stream().filter(zone -> zone.contains(aimX, aimY)).map(Zone::sector).findFirst().orElseThrow(() -> new IllegalStateException("Court layout has a gap at (" + aimX + ", " + aimY + ")"));
+            return ReceiverLayouts.layoutFor(receiverCount).stream().filter(zone -> zone.contains(aimX, aimY)).map(Zone::sector).findFirst().orElseThrow(() -> new IllegalStateException("Court layout has a gap at (" + aimX + ", " + aimY + ")"));
         }
     }
 }

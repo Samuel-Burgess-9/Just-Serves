@@ -7,6 +7,7 @@ import justServes.models.ServeType;
 import justServes.repo.GameRepository;
 import justServes.repo.ServeRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,6 +57,26 @@ public class GameService {
         serves.deleteById(last.getId());   // database first: if this throws, memory is unchanged
         gameServes.remove(last);
         return Optional.of(last);
+    }
+
+    /** For launch: carries on with the most recent game and its serves, or starts the first one. */
+    public Game resumeOrStartGame() {
+        Optional<Game> latest = games.findLatest();
+        if (latest.isEmpty()) {
+            return startGame();
+        }
+        Game game = latest.get();
+        game.setServes(new ArrayList<>(serves.findByGame(game.getId())));
+        this.currentGame = game;
+        return game;
+    }
+
+    /** For the New game button: starts another game, but never leaves an empty one behind. */
+    public Game newGame() {
+        if (currentGame != null && currentGame.getServes().isEmpty()) {
+            return currentGame;
+        }
+        return startGame();
     }
 }
 
