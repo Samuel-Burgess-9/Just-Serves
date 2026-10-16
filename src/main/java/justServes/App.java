@@ -37,6 +37,7 @@ public class App extends Application {
         stage.setMinHeight(MIN_WINDOW_HEIGHT);
         stage.setMinWidth(MIN_WINDOW_WIDTH);
         stage.setTitle("Just Serves");
+        state.setTheme(AppThemes.GRASS);
         stage.show();
     }
 
