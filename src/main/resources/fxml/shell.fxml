@@ -4,6 +4,8 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="justServes.gui.controllers.ShellController"
@@ -23,7 +25,15 @@
             <padding>
                 <Insets left="16" right="16"/>
             </padding>
-            <!-- Swap this Label for an ImageView once the logo file exists -->
+            <ImageView fitHeight="36"
+                       fitWidth="150"
+                       preserveRatio="true"
+                       smooth="true"
+                       styleClass="app-logo">
+                <image>
+                    <Image url="@../images/logo.png"/>
+                </image>
+            </ImageView>
             <Label text="just serves" styleClass="app-title"/>
             <ToggleButton fx:id="recordNav" text="Record Serves" selected="true"
                           toggleGroup="$navGroup" styleClass="nav-button"/>

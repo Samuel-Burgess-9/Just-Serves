@@ -3,17 +3,26 @@ package justServes; /**
  */
 
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import justServes.repo.Database;
 
+import java.io.IOException;
+
 public class App extends Application {
     private Database database;
     @Override
-    public void start(Stage stage) {
+    public void start(Stage stage) throws IOException {
         database = Database.forUser();
-        stage.setScene(new Scene(new Label("Just Serves"), 400, 300));
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/fxml/shell.fxml")
+        );
+        Parent root = loader.load();
+
+        stage.setScene(new Scene(root));
         stage.setTitle("Just Serves");
         stage.show();
     }
