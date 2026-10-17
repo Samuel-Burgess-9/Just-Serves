@@ -1,16 +1,19 @@
 package justServes.gui.court;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import justServes.AppConstants;
 import justServes.models.Serve;
+import justServes.services.Sector;
 import justServes.services.Zone;
 import justServes.util.CourtBounds;
 import justServes.util.CourtCoordinates;
 import justServes.util.CourtPoint;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Draws the court. Each method sets its own paint state, so drawing order never matters,
@@ -46,6 +49,59 @@ final class CourtPainter {
             g.strokeRoundRect(x, y, w, h, arc, arc);
         }
     }
+
+
+    /**
+     * Draws a count-based heatmap over the court surface.
+     * Higher counts produce stronger orange shading.
+     * Zero-count zones remain transparent.
+     */
+    static void drawHeatmap(
+            GraphicsContext g,
+            CourtBounds b,
+            List<Zone> zones,
+            Map<Sector, Integer> counts) {
+
+        int maxCount = counts.values().stream()
+                .mapToInt(Integer::intValue)
+                .max()
+                .orElse(0);
+
+        // No data: leave the court surface unchanged.
+        if (maxCount == 0) {
+            return;
+        }
+
+        Color heatColor = Color.web("#F04424");
+
+        for (Zone zone : zones) {
+            int count = counts.getOrDefault(zone.sector(), 0);
+
+            if (count <= 0) {
+                continue;
+            }
+
+            // Square-root scaling makes low-frequency areas visible
+            // without allowing high-frequency areas to dominate.
+            double intensity = Math.sqrt(count / (double) maxCount);
+            double alpha = 0.12 + 0.58 * intensity;
+
+            double x = CourtCoordinates.pixelX(zone.xMin(), b);
+            double y = CourtCoordinates.pixelY(zone.yMax(), b);
+            double width = (zone.xMax() - zone.xMin()) * b.width();
+            double height = (zone.yMax() - zone.yMin()) * b.height();
+
+            g.setFill(Color.color(
+                    heatColor.getRed(),
+                    heatColor.getGreen(),
+                    heatColor.getBlue(),
+                    alpha
+            ));
+
+            g.fillRect(x, y, width, height);
+        }
+    }
+
 
     static void drawLines(GraphicsContext g, CourtBounds b, CourtTheme theme) {
         g.setStroke(theme.lines());

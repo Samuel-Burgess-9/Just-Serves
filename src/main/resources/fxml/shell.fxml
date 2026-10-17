@@ -37,7 +37,7 @@
             <Label text="just serves" styleClass="app-title"/>
             <ToggleButton fx:id="recordNav" text="Record Serves" selected="true"
                           toggleGroup="$navGroup" styleClass="nav-button"/>
-            <ToggleButton fx:id="analyzeNav" text="Analyze Game" disable="true"
+            <ToggleButton fx:id="analyzeNav" text="Analyze Game"
                           toggleGroup="$navGroup" styleClass="nav-button"/>
             <ToggleButton fx:id="statsNav" text="Serving Stats" disable="true"
                           toggleGroup="$navGroup" styleClass="nav-button"/>

@@ -6,11 +6,14 @@ import javafx.scene.layout.Pane;
 import justServes.AppConstants;
 import justServes.models.Serve;
 import justServes.services.ReceiverLayouts;
+import justServes.services.Sector;
+import justServes.services.Zone;
 import justServes.util.CourtBounds;
 import justServes.util.CourtCoordinates;
 import justServes.util.CourtPoint;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -23,6 +26,9 @@ public class CourtView extends Pane {
     private int receiverCount = AppConstants.DEFAULT_RECEIVER_COUNT;
     private CourtPoint pendingAim;
     private Consumer<CourtPoint> onCourtClicked = p -> { };
+    private Map<Sector, Integer> heatmapCounts;
+
+    private DisplayMode displayMode = DisplayMode.RECORD;
 
     public CourtView() {
         setPrefSize(400, 400);
@@ -43,9 +49,21 @@ public class CourtView extends Pane {
         redraw();
     }
 
+    public void setDisplayMode(DisplayMode displayMode) {
+        this.displayMode = displayMode;
+    }
+
     /** Shows the chosen aim before the serve is recorded; null clears it. */
     public void setPendingAim(CourtPoint pendingAim) {
         this.pendingAim = pendingAim;
+        redraw();
+    }
+
+    /** Sets heatmap counts for analysis. Null disables the heatmap. */
+    public void setHeatmapCounts(Map<Sector, Integer> counts) {
+        this.heatmapCounts = counts == null
+                ? null
+                : Map.copyOf(counts);
         redraw();
     }
 
@@ -87,19 +105,45 @@ public class CourtView extends Pane {
 
     private void redraw() {
         if (getWidth() <= 0 || getHeight() <= 0) {
-            return;                                        // not laid out yet
+            return;
         }
+
         GraphicsContext g = canvas.getGraphicsContext2D();
         g.clearRect(0, 0, getWidth(), getHeight());
+
         CourtBounds b = bounds();
 
         CourtPainter.drawSurface(g, b, theme);
-        if (showZones) {
-            CourtPainter.drawZones(g, b, theme, ReceiverLayouts.layoutFor(receiverCount));
+
+        if (displayMode == DisplayMode.RECORD) {
+            redrawRecord(g, b);
+        } else {
+            redrawAnalysis(g, b);
         }
-        CourtPainter.drawLines(g, b, theme);     // on top of the overlay
+    }
+
+    private void redrawRecord(GraphicsContext g, CourtBounds b) {
+        if (showZones) {
+            CourtPainter.drawZones(
+                    g, b, theme,
+                    ReceiverLayouts.layoutFor(receiverCount)
+            );
+        }
+
+        CourtPainter.drawLines(g, b, theme);
         CourtPainter.drawNet(g, b, theme);
         CourtPainter.drawServes(g, b, theme, serves);
         CourtPainter.drawPending(g, b, theme, pendingAim);
+    }
+
+    private void redrawAnalysis(GraphicsContext g, CourtBounds b) {
+        List<Zone> zones = ReceiverLayouts.layoutFor(receiverCount);
+
+        if (heatmapCounts != null) {
+            CourtPainter.drawHeatmap(g, b, zones, heatmapCounts);
+        }
+
+        CourtPainter.drawLines(g, b, theme);
+        CourtPainter.drawNet(g, b, theme);
     }
 }

@@ -26,7 +26,7 @@ import java.util.Map;
 
 import static justServes.gui.controllers.TextHelper.pretty;
 
-public class RecordScreenController {
+public class RecordScreenController implements ScreenController {
     public CheckBox showZonesCheckBox;
     @FXML private HBox receiverBox;
     @FXML private Button recordButton;
@@ -266,5 +266,10 @@ public class RecordScreenController {
         Alert alert = new Alert(Alert.AlertType.ERROR, detail);
         alert.setHeaderText(header);
         alert.showAndWait();
+    }
+
+    @Override
+    public void onShow() {
+        refreshView();
     }
 }

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="justServes.gui.controllers.AnalyzeScreenController"
+            prefWidth="1100" prefHeight="694">
+
+    <!-- Left: the games list. Cards are built in code by the ListView's cell factory. -->
+    <left>
+        <VBox spacing="10" styleClass="side-panel" prefWidth="260" minWidth="220" maxWidth="300">
+            <padding>
+                <Insets top="16" right="16" bottom="16" left="16"/>
+            </padding>
+            <Label text="GAMES" styleClass="panel-title"/>
+            <ListView fx:id="gameList" styleClass="game-list" VBox.vgrow="ALWAYS"/>
+        </VBox>
+    </left>
+
+    <!-- Centre: game title strip and the court heatmap (CourtView is added in code) -->
+    <center>
+        <BorderPane>
+            <top>
+                <HBox alignment="CENTER_LEFT" spacing="16" styleClass="top-strip"
+                      minHeight="48" prefHeight="48" maxHeight="48">
+                    <padding>
+                        <Insets left="16" right="16"/>
+                    </padding>
+                    <Label fx:id="gameTitleLabel" text="No game selected" styleClass="game-title"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="hintLabel"
+                           text="Shading = number of serves &#183; click a zone to focus it"
+                           styleClass="hint-label"/>
+                </HBox>
+            </top>
+            <center>
+                <StackPane fx:id="courtHolder">
+                    <padding>
+                        <Insets top="16" right="16" bottom="16" left="16"/>
+                    </padding>
+                </StackPane>
+            </center>
+        </BorderPane>
+    </center>
+
+    <!-- Right: what is being shown, serve type filter, outcome breakdown -->
+    <right>
+        <VBox spacing="18" styleClass="side-panel" prefWidth="300" minWidth="260" maxWidth="340">
+            <padding>
+                <Insets top="16" right="16" bottom="16" left="16"/>
+            </padding>
+
+            <VBox spacing="4">
+                <Label text="SHOWING" styleClass="panel-title"/>
+                <Label fx:id="scopeTitleLabel" text="Whole court" wrapText="true" styleClass="scope-title"/>
+                <Label fx:id="scopeDetailLabel" text="No serves" styleClass="scope-detail"/>
+                <Button fx:id="clearZoneButton" text="Clear zone" disable="true">
+                    <VBox.margin>
+                        <Insets top="6"/>
+                    </VBox.margin>
+                </Button>
+            </VBox>
+
+            <VBox spacing="8">
+                <Label text="SERVE TYPE" styleClass="panel-title"/>
+                <FlowPane hgap="6" vgap="6">
+                    <ToggleButton fx:id="allToggle" text="All" selected="true"/>
+                    <ToggleButton fx:id="topspinToggle" text="Topspin"/>
+                    <ToggleButton fx:id="floatToggle" text="Float"/>
+                    <ToggleButton fx:id="leftSpinToggle" text="Left spin"/>
+                    <ToggleButton fx:id="rightSpinToggle" text="Right spin"/>
+                </FlowPane>
+            </VBox>
+
+            <VBox spacing="10">
+                <Label text="OUTCOMES" styleClass="panel-title"/>
+                <GridPane hgap="8" vgap="10">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="64" prefWidth="64"/>
+                        <ColumnConstraints hgrow="ALWAYS"/>
+                        <ColumnConstraints halignment="RIGHT" minWidth="64" prefWidth="64"/>
+                    </columnConstraints>
+
+                    <Label text="Ace" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                    <ProgressBar fx:id="aceBar" progress="0.0" maxWidth="Infinity" styleClass="outcome-bar"
+                                 GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                    <Label fx:id="aceValueLabel" text="0" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+
+                    <Label text="Shaky" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                    <ProgressBar fx:id="shakyBar" progress="0.0" maxWidth="Infinity" styleClass="outcome-bar"
+                                 GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                    <Label fx:id="shakyValueLabel" text="0" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+
+                    <Label text="Returned" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                    <ProgressBar fx:id="returnedBar" progress="0.0" maxWidth="Infinity" styleClass="outcome-bar"
+                                 GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                    <Label fx:id="returnedValueLabel" text="0" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
+
+                    <Label text="Out" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                    <ProgressBar fx:id="outBar" progress="0.0" maxWidth="Infinity" styleClass="outcome-bar"
+                                 GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                    <Label fx:id="outValueLabel" text="0" GridPane.columnIndex="2" GridPane.rowIndex="3"/>
+                </GridPane>
+            </VBox>
+        </VBox>
+    </right>
+
+</BorderPane>
