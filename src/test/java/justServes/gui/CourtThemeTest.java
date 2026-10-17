@@ -19,6 +19,6 @@ class CourtThemeTest {
     void aThemeMissingAColourIsRejected() {
         assertThrows(NullPointerException.class, () -> new CourtTheme(
                 "Broken", null, null, Color.WHITE, Color.WHITE,
-                Color.BLACK, Color.BLACK, Color.WHITE, Color.BLUE, Color.WHITE));
+                Color.BLACK, Color.BLACK, Color.WHITE, Color.BLUE, Color.WHITE, true));
     }
 }
