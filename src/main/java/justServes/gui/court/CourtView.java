@@ -6,11 +6,14 @@ import javafx.scene.layout.Pane;
 import justServes.AppConstants;
 import justServes.models.Serve;
 import justServes.services.ReceiverLayouts;
+import justServes.services.Sector;
+import justServes.services.Zone;
 import justServes.util.CourtBounds;
 import justServes.util.CourtCoordinates;
 import justServes.util.CourtPoint;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -20,9 +23,13 @@ public class CourtView extends Pane {
     private CourtTheme theme = CourtThemes.DEFAULT;
     private boolean showZones = true;
     private List<Serve> serves = List.of();
-    private int receiverCount = AppConstants.DEFAULT_RECEIVER_COUNT;
+    private List<Zone> zones = ReceiverLayouts.defaultLayout();
     private CourtPoint pendingAim;
     private Consumer<CourtPoint> onCourtClicked = p -> { };
+    private Map<Sector, Integer> heatmapCounts;
+    private Sector selectedSector;
+
+    private DisplayMode displayMode = DisplayMode.RECORD;
 
     public CourtView() {
         setPrefSize(400, 400);
@@ -37,15 +44,26 @@ public class CourtView extends Pane {
         this.onCourtClicked = handler;
     }
 
-    public void setServes(List<Serve> serves, int receiverCount) {
+    public void setServes(List<Serve> serves) {
         this.serves = List.copyOf(serves);
-        this.receiverCount = receiverCount;
         redraw();
+    }
+
+    public void setDisplayMode(DisplayMode displayMode) {
+        this.displayMode = displayMode;
     }
 
     /** Shows the chosen aim before the serve is recorded; null clears it. */
     public void setPendingAim(CourtPoint pendingAim) {
         this.pendingAim = pendingAim;
+        redraw();
+    }
+
+    /** Sets heatmap counts for analysis. Null disables the heatmap. */
+    public void setHeatmapCounts(Map<Sector, Integer> counts) {
+        this.heatmapCounts = counts == null
+                ? null
+                : Map.copyOf(counts);
         redraw();
     }
 
@@ -79,7 +97,9 @@ public class CourtView extends Pane {
             return;                                        // clicked a margin
         }
         CourtPoint point = CourtCoordinates.toCourt(px, py, b);
-        setPendingAim(point);
+        if (displayMode == DisplayMode.RECORD) {
+            setPendingAim(point);
+        }
         onCourtClicked.accept(point);
     }
 
@@ -87,19 +107,59 @@ public class CourtView extends Pane {
 
     private void redraw() {
         if (getWidth() <= 0 || getHeight() <= 0) {
-            return;                                        // not laid out yet
+            return;
         }
+
         GraphicsContext g = canvas.getGraphicsContext2D();
         g.clearRect(0, 0, getWidth(), getHeight());
+
         CourtBounds b = bounds();
 
         CourtPainter.drawSurface(g, b, theme);
-        if (showZones) {
-            CourtPainter.drawZones(g, b, theme, ReceiverLayouts.layoutFor(receiverCount));
+
+        if (displayMode == DisplayMode.RECORD) {
+            redrawRecord(g, b);
+        } else {
+            redrawAnalysis(g, b);
         }
-        CourtPainter.drawLines(g, b, theme);     // on top of the overlay
+    }
+
+    private void redrawRecord(GraphicsContext g, CourtBounds b) {
+        if (showZones) {
+            CourtPainter.drawZones(
+                    g, b, theme,
+                    this.zones
+            );
+        }
+
+        CourtPainter.drawLines(g, b, theme);
         CourtPainter.drawNet(g, b, theme);
         CourtPainter.drawServes(g, b, theme, serves);
         CourtPainter.drawPending(g, b, theme, pendingAim);
+    }
+
+    private void redrawAnalysis(GraphicsContext g, CourtBounds b) {
+        List<Zone> zones = this.zones;
+
+        if (heatmapCounts != null) {
+            CourtPainter.drawHeatmap(g, b, theme, zones, heatmapCounts);
+            CourtPainter.drawSelectedZone(g, b, theme, zones, selectedSector);
+        } else {
+            CourtPainter.drawZones(g, b, theme, zones);   // no game selected: show the plain overlay
+        }
+
+        CourtPainter.drawLines(g, b, theme);
+        CourtPainter.drawNet(g, b, theme);
+    }
+
+    public void setZones(List<Zone> zones) {
+        this.zones = List.copyOf(zones);
+        redraw();
+    }
+
+    /** Outlines one zone on the analysis court; null clears it. */
+    public void setSelectedSector(Sector sector) {
+        this.selectedSector = sector;
+        redraw();
     }
 }

@@ -200,7 +200,7 @@
 
 .zone-help-text {
     -fx-font-size: 11px;
-    -fx-text-fill: -app-on-surface;
+    -fx-text-fill: -app-text-muted;
 }
 
 .zone-help-hint {
@@ -211,4 +211,89 @@
 
 .zones-toggle {
     -fx-cursor: hand;
+}
+
+/* ---------- Analyze Game ---------- */
+.game-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.scope-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+.scope-detail {
+    -fx-text-fill: -app-text-muted;
+}
+
+.legend-label {
+    -fx-font-size: 11px;
+    -fx-text-fill: -app-text-muted;
+}
+
+/* Game cards: each cell holds a .game-card graphic, so colours live on the card, not the cell */
+.game-list {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.game-list:focused {
+    -fx-background-color: transparent;
+}
+
+.game-list .list-cell,
+.game-list .list-cell:filled:hover,
+.game-list .list-cell:filled:selected,
+.game-list .list-cell:filled:selected:focused {
+    -fx-background-color: transparent;
+    -fx-padding: 0 0 8 0;
+}
+
+.game-card {
+    -fx-background-color: -app-bg;
+    -fx-background-radius: 8;
+    -fx-border-color: -app-border;
+    -fx-border-radius: 8;
+    -fx-border-width: 2;
+    -fx-padding: 8 12 8 12;
+}
+
+.game-list .list-cell:selected .game-card {
+    -fx-background-color: -app-accent-soft;
+    -fx-border-color: -app-accent-strong;
+}
+
+.game-card-title {
+    -fx-font-weight: bold;
+}
+
+.game-card-detail,
+.game-card-stats {
+    -fx-text-fill: -app-text-muted;
+    -fx-font-size: 12px;
+}
+
+/* Outcome bars: slim, rounded. The fill colour is set from OutcomeColours in code. */
+.outcome-bar {
+    -fx-pref-height: 12px;
+}
+
+.outcome-bar > .track {
+    -fx-background-color: #eef1f4;
+    -fx-background-radius: 6;
+    -fx-background-insets: 0;
+}
+
+.outcome-bar > .bar {
+    -fx-background-color: -fx-accent;
+    -fx-background-radius: 6;
+    -fx-background-insets: 0;
+    -fx-padding: 5px;
+}
+
+.side-panel .compact-toggle {
+    -fx-padding: 7 4 7 4;
 }

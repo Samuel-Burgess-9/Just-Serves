@@ -21,7 +21,7 @@ public record Palette(Color accent, Color accentStrong, Color onAccent, Color ac
                 + "-app-accent-soft: " + hex(accentSoft) + ";";
     }
 
-    static String hex(Color c) {
+    public static String hex(Color c) {
         return String.format("#%02x%02x%02x",
                 Math.round(c.getRed() * 255),
                 Math.round(c.getGreen() * 255),

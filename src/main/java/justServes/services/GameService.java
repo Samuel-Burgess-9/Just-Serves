@@ -34,6 +34,15 @@ public class GameService {
         }
         return this.currentGame;
     }
+
+    public List<Game> listGames() {
+        return games.findAll();
+    }
+
+    public List<Serve> servesFor(Game game) {
+        return serves.findByGame(game.getId());
+    }
+
     public Serve logServe(double aimX, double aimY, Outcome outcome,
                           int receiverCount, ServeType serveType) {
         Serve currentServe = new Serve();
