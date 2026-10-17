@@ -65,6 +65,28 @@
                 <ToggleButton text="6"
                               maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
             </HBox>
+
+            <Separator/>
+
+            <Label text="COURT DISPLAY" styleClass="panel-title"/>
+
+            <CheckBox fx:id="showZonesCheckBox"
+                      text="Show zones"
+                      selected="true"
+                      styleClass="zones-toggle"/>
+
+            <VBox spacing="6" styleClass="zone-help-card">
+                <Label text="ABOUT THE ZONES" styleClass="panel-title"/>
+                <Label text="Zones divide the receiving court into target areas."
+                       wrapText="true"
+                       styleClass="zone-help-text"/>
+                <Label text="Zones help provide information on your accuracy when aiming at certain spots on the court."
+                       wrapText="true"
+                       styleClass="zone-help-text"/>
+                <Label text="Turn off Show zones for a clearer view of the court."
+                       wrapText="true"
+                       styleClass="zone-help-hint"/>
+            </VBox>
         </VBox>
     </left>
 

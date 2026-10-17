@@ -27,6 +27,7 @@ import java.util.Map;
 import static justServes.gui.controllers.TextHelper.pretty;
 
 public class RecordScreenController {
+    public CheckBox showZonesCheckBox;
     @FXML private HBox receiverBox;
     @FXML private Button recordButton;
     @FXML private Label hintLabel, gameStatsLabel, lastServeOutcomeLabel, lastServeDetailLabel;
@@ -82,6 +83,11 @@ public class RecordScreenController {
                 refreshView();   // zone lines depend on the receiver count
             }
         });
+
+        showZonesCheckBox.selectedProperty().addListener(
+                (obs, wasSelected, isSelected) ->
+                        courtView.setShowZones(isSelected)
+        );
 
         recentList.setPlaceholder(new Label());
         recentList.setCellFactory(lv -> new ListCell<>() {

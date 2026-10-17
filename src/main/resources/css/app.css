@@ -187,3 +187,28 @@
     -fx-padding: 0;
     -fx-graphic-text-gap: 8;
 }
+
+.zone-help-card {
+    -fx-background-color: -app-accent-soft;
+    -fx-background-radius: 10;
+    -fx-padding: 12;
+}
+
+.zone-help-card .panel-title {
+    -fx-font-size: 10px;
+}
+
+.zone-help-text {
+    -fx-font-size: 11px;
+    -fx-text-fill: -app-on-surface;
+}
+
+.zone-help-hint {
+    -fx-font-size: 10px;
+    -fx-text-fill: -app-accent-strong;
+    -fx-padding: 4 0 0 0;
+}
+
+.zones-toggle {
+    -fx-cursor: hand;
+}
