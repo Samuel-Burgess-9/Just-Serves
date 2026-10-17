@@ -16,7 +16,8 @@ public record CourtTheme(
         Color net,
         Color netLabel,
         Color markerOutline,
-        Color pendingRing) {
+        Color pendingRing,
+        boolean showAttackLine) {
 
     public CourtTheme {
         Objects.requireNonNull(name, "name");

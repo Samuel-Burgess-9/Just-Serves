@@ -36,7 +36,8 @@ public final class AppThemes {
                     Color.web("#14202B"),
                     Color.web("#14202B"),
                     Color.WHITE,
-                    Color.web("#2469C9")
+                    Color.web("#2469C9"),
+                    true
             ),
             new Palette(
                     Color.web("#2469C9"),
@@ -59,7 +60,8 @@ public final class AppThemes {
                     Color.web("#183D26"),
                     Color.web("#183D26"),
                     Color.WHITE,
-                    Color.web("#B8ED83")
+                    Color.web("#B8ED83"),
+                    false
             ),
             new Palette(
                     Color.web("#3E9B59"),
@@ -82,7 +84,8 @@ public final class AppThemes {
                     Color.web("#614729"),
                     Color.web("#614729"),
                     Color.WHITE,
-                    Color.web("#148F91")
+                    Color.web("#148F91"),
+                    false
             ),
             new Palette(
                     Color.web("#148F91"),
@@ -105,7 +108,8 @@ public final class AppThemes {
                     Color.web("#17436A"),
                     Color.web("#17436A"),
                     Color.WHITE,
-                    Color.web("#2166B0")
+                    Color.web("#2166B0"),
+                    true
             ),
             new Palette(
                     Color.web("#3998E8"),

@@ -52,8 +52,12 @@ final class CourtPainter {
         g.setLineWidth(Math.max(1.5, b.width() * 0.004));
         g.strokeRect(b.left(), b.top(), b.width(), b.height());
 
-        double attackY = CourtCoordinates.pixelY(AppConstants.COURT_ATTACK_LINE_Y, b);
-        g.strokeLine(b.left(), attackY, b.left() + b.width(), attackY);
+        // Attack line is optional per court theme.
+        if (theme.showAttackLine()) {
+            double attackY = CourtCoordinates.pixelY(
+                    AppConstants.COURT_ATTACK_LINE_Y, b);
+            g.strokeLine(b.left(), attackY, b.left() + b.width(), attackY);
+        }
     }
 
     /** y = 0 is the net, so it runs along the bottom edge. */

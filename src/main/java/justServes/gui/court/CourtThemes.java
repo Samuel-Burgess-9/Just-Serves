@@ -16,5 +16,6 @@ public final class CourtThemes {
             Color.web("#222222"),          // net
             Color.web("#222222"),          // net label
             Color.WHITE,                   // marker outline
-            Color.web("#1565c0"));         // pending ring
+            Color.web("#1565c0"),
+            true);         // pending ring
 }
