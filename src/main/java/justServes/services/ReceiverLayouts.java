@@ -1,6 +1,7 @@
 package justServes.services;
 
 import java.util.List;
+import java.util.Map;
 
 import static justServes.AppConstants.RECEIVER_MAX;
 import static justServes.AppConstants.RECEIVER_MIN;
@@ -17,6 +18,8 @@ import static justServes.AppConstants.RECEIVER_MIN;
  * except at the court's outer edge (1.0).
  **/
 public class ReceiverLayouts {
+
+    private static final Map<Integer, List<Zone>> BY_RECEIVER_COUNT = Map.of();
 
     private static final List<Zone> DEFAULT_LAYOUT = List.of(
 
@@ -61,6 +64,10 @@ public class ReceiverLayouts {
                     0.1, 0.9, 0.9, 1.0)
     );
 
+    public static List<Zone> defaultLayout() {
+        return DEFAULT_LAYOUT;
+    }
+
     /**
      * Returns the zones for the layout of given number of receivers
      * @param receiverCount number of opposition receiving players
@@ -72,6 +79,6 @@ public class ReceiverLayouts {
                     "receiverCount must be between 1 and 6"
             );
         }
-        return DEFAULT_LAYOUT;
+        return BY_RECEIVER_COUNT.getOrDefault(receiverCount, DEFAULT_LAYOUT);
     }
 }

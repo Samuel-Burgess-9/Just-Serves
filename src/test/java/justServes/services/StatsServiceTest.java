@@ -15,9 +15,12 @@ import static org.junit.jupiter.api.Assertions.*;
 class StatsServiceTest {
 
     private static Serve serve(double x, double y, Outcome outcome, ServeType type) {
+        return serve(x, y, outcome, type, 2);
+    }
+    private static Serve serve(double x, double y, Outcome outcome, ServeType type, int receivers) {
         Serve s = new Serve();
         s.setGameId(1);
-        s.setReceiverCount(2);
+        s.setReceiverCount(receivers);
         s.setAimX(x);
         s.setAimY(y);
         s.setOutcome(outcome);
@@ -33,9 +36,10 @@ class StatsServiceTest {
 
     private final StatsService stats = new StatsService();
 
+
     @Test
     void sectorCountsListEveryZoneIncludingEmptyOnes() {
-        Map<Sector, Integer> counts = stats.sectorCounts(serves, null);
+        Map<Sector, Integer> counts = stats.sectorCounts(serves, StatsFilter.NONE);
 
         assertEquals(Sector.values().length, counts.size());
         assertEquals(1, counts.get(Sector.CENTRE));
@@ -46,7 +50,11 @@ class StatsServiceTest {
 
     @Test
     void sectorCountsCanBeNarrowedToOneServeType() {
-        Map<Sector, Integer> floats = stats.sectorCounts(serves, FLOAT);
+        Map<Sector, Integer> floats =
+                stats.sectorCounts(
+                        serves,
+                        StatsFilter.NONE.withServeType(FLOAT)
+                );
 
         assertEquals(1, floats.get(Sector.RIGHT_LINE_BACK));
         assertEquals(0, floats.get(Sector.CENTRE));
@@ -90,7 +98,7 @@ class StatsServiceTest {
 
         assertEquals(0, result.total());
         assertEquals(0.0, result.share(ACE));
-        assertEquals(0, stats.sectorCounts(List.of(), null).get(Sector.CENTRE));
+        assertEquals(0, stats.sectorCounts(List.of(), StatsFilter.NONE).get(Sector.CENTRE));
     }
 
     @Test
@@ -106,5 +114,51 @@ class StatsServiceTest {
 
         assertNull(StatsFilter.NONE.sector());
         assertEquals(Sector.CENTRE, narrowed.sector());
+    }
+
+    @Test
+    void aReceiverCountOnlyCountsServesWithThatCount() {
+        Serve solo = serve(0.5, 0.5, OUT, TOPSPIN, 1);
+        List<Serve> mixed = List.of(ace1, ace2, shaky, out, solo);   // the four originals have 2 receivers
+
+        OutcomeStats one = stats.outcomes(mixed, StatsFilter.NONE.withReceiverCount(1));
+        OutcomeStats two = stats.outcomes(mixed, StatsFilter.NONE.withReceiverCount(2));
+
+        assertEquals(1, one.total());
+        assertEquals(1, one.count(OUT));
+        assertEquals(4, two.total());
+        assertEquals(5, stats.outcomes(mixed, StatsFilter.NONE).total());   // "all" counts everything
+    }
+
+    @Test
+    void theHeatmapForOneReceiverCountIgnoresOtherCounts() {
+        Serve solo = serve(0.5, 0.5, OUT, TOPSPIN, 1);
+        List<Serve> mixed = List.of(ace1, solo);
+
+        Map<Sector, Integer> counts = stats.sectorCounts(mixed, StatsFilter.NONE.withReceiverCount(1));
+
+        assertEquals(1, counts.get(Sector.CENTRE));
+        assertEquals(1, counts.values().stream().mapToInt(Integer::intValue).sum());
+    }
+
+    @Test
+    void allReceiversPlacesEveryServeOnTheDefaultZoning() {
+        assertSame(ReceiverLayouts.defaultLayout(), StatsFilter.NONE.layout());
+        assertEquals(serves.size(),
+                stats.sectorCounts(serves, StatsFilter.NONE).values().stream().mapToInt(Integer::intValue).sum());
+    }
+
+    @Test
+    void changingTheReceiverCountDropsTheZoneButKeepsTheServeType() {
+        StatsFilter filter = StatsFilter.NONE.withSector(Sector.CENTRE).withServeType(FLOAT).withReceiverCount(2);
+
+        assertNull(filter.sector());
+        assertEquals(FLOAT, filter.serveType());
+        assertEquals(2, filter.receiverCount());
+    }
+
+    @Test
+    void anImpossibleReceiverCountIsRejected() {
+        assertThrows(IllegalArgumentException.class, () -> StatsFilter.NONE.withReceiverCount(7));
     }
 }

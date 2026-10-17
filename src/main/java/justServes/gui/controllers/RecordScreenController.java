@@ -16,6 +16,7 @@ import justServes.models.Serve;
 import justServes.models.ServeType;
 import justServes.repo.RepositoryException;
 import justServes.services.GameService;
+import justServes.services.ReceiverLayouts;
 import justServes.services.SectorService;
 import justServes.util.CourtPoint;
 
@@ -213,7 +214,9 @@ public class RecordScreenController implements ScreenController {
         Game game = gameService.getCurrentGame();
         List<Serve> serves = game.getServes();
 
-        courtView.setServes(serves, selectedReceiverCount());
+        int receivers = selectedReceiverCount();
+        courtView.setZones(ReceiverLayouts.layoutFor(receivers));
+        courtView.setServes(serves.stream().filter(s -> s.getReceiverCount() == receivers).toList());
 
         StringBuilder stats = new StringBuilder(
                 serves.size() + (serves.size() == 1 ? " serve" : " serves"));
@@ -229,11 +232,11 @@ public class RecordScreenController implements ScreenController {
             lastServeDetailLabel.setText("");
         } else {
             Serve last = serves.get(serves.size() - 1);
-            int receivers = last.getReceiverCount();
+            int lastReceivers = last.getReceiverCount();
             lastServeOutcomeLabel.setText(pretty(last.getOutcome()));
             lastServeDetailLabel.setText(pretty(last.getType()) + " · "
-                    + (receivers == 1 ? "1 receiver" : receivers + " receivers") + " · "
-                    + pretty(sectorService.sectorOf(last.getAimX(), last.getAimY(), receivers)));
+                    + (lastReceivers == 1 ? "1 receiver" : lastReceivers + " receivers") + " · "
+                    + pretty(sectorService.sectorOf(last.getAimX(), last.getAimY(), lastReceivers)));
         }
 
         List<RecentRow> rows = new ArrayList<>();

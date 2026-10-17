@@ -1,8 +1,6 @@
-package justServes.gui;
+package justServes.gui.court;
 
 import javafx.scene.paint.Color;
-import justServes.gui.court.CourtTheme;
-import justServes.gui.court.CourtThemes;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

@@ -1,5 +1,6 @@
 package justServes.gui.court;
 
+import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -21,8 +22,6 @@ import java.util.Map;
  */
 final class CourtPainter {
 
-    private static justServes.gui.court.OutcomeColours OutcomeColours;
-
     private CourtPainter() { }
 
     static void drawSurface(GraphicsContext g, CourtBounds b, CourtTheme theme) {
@@ -34,72 +33,76 @@ final class CourtPainter {
         }
     }
 
-    static void drawZones(GraphicsContext g, CourtBounds b, CourtTheme theme, List<Zone> zones) {
+    private record Tile(double x, double y, double w, double h, double arc) { }
+
+    private static Tile tile(Zone z, CourtBounds b) {
         double inset = Math.max(1.5, b.width() * 0.004);   // gaps between tiles read as an overlay, not lines
-        double arc = Math.max(4, b.width() * 0.012);
+        return new Tile(
+                CourtCoordinates.pixelX(z.xMin(), b) + inset,
+                CourtCoordinates.pixelY(z.yMax(), b) + inset,   // a zone's top edge on screen is its yMax
+                (z.xMax() - z.xMin()) * b.width() - 2 * inset,
+                (z.yMax() - z.yMin()) * b.height() - 2 * inset,
+                Math.max(4, b.width() * 0.012));
+    }
+
+    static void drawZones(GraphicsContext g, CourtBounds b, CourtTheme theme, List<Zone> zones) {
         g.setFill(theme.zoneFill());
         g.setStroke(theme.zoneEdge());
         g.setLineWidth(1);
         for (Zone z : zones) {
-            double x = CourtCoordinates.pixelX(z.xMin(), b) + inset;
-            double y = CourtCoordinates.pixelY(z.yMax(), b) + inset;   // a zone's top edge on screen is its yMax
-            double w = (z.xMax() - z.xMin()) * b.width() - 2 * inset;
-            double h = (z.yMax() - z.yMin()) * b.height() - 2 * inset;
-            g.fillRoundRect(x, y, w, h, arc, arc);
-            g.strokeRoundRect(x, y, w, h, arc, arc);
+            Tile t = tile(z, b);
+            g.fillRoundRect(t.x(), t.y(), t.w(), t.h(), t.arc(), t.arc());
+            g.strokeRoundRect(t.x(), t.y(), t.w(), t.h(), t.arc(), t.arc());
         }
     }
 
+    /** The same tiles as drawZones, filled by serve count on the theme's heat scale, with the count in each. */
+    static void drawHeatmap(GraphicsContext g, CourtBounds b, CourtTheme theme,
+                            List<Zone> zones, Map<Sector, Integer> counts) {
+        int max = counts.values().stream().mapToInt(Integer::intValue).max().orElse(0);
 
-    /**
-     * Draws a count-based heatmap over the court surface.
-     * Higher counts produce stronger orange shading.
-     * Zero-count zones remain transparent.
-     */
-    static void drawHeatmap(
-            GraphicsContext g,
-            CourtBounds b,
-            List<Zone> zones,
-            Map<Sector, Integer> counts) {
+        g.setTextAlign(TextAlignment.CENTER);
+        g.setTextBaseline(VPos.CENTER);
+        g.setFont(Font.font(clamp(b.width() * 0.032, 10, 18)));
+        g.setLineWidth(1);
 
-        int maxCount = counts.values().stream()
-                .mapToInt(Integer::intValue)
-                .max()
-                .orElse(0);
+        for (Zone z : zones) {
+            int count = counts.getOrDefault(z.sector(), 0);
+            Tile t = tile(z, b);
+            boolean empty = count == 0 || max == 0;
 
-        // No data: leave the court surface unchanged.
-        if (maxCount == 0) {
+            Color fill = empty
+                    ? theme.zoneFill()                                   // empty zones look like the record overlay
+                    : HeatScale.colourAt(theme, Math.sqrt(count / (double) max));   // sqrt keeps quiet zones visible
+            g.setFill(fill);
+            g.fillRoundRect(t.x(), t.y(), t.w(), t.h(), t.arc(), t.arc());
+            g.setStroke(theme.zoneEdge());
+            g.strokeRoundRect(t.x(), t.y(), t.w(), t.h(), t.arc(), t.arc());
+
+            Color text = readableOn(empty ? theme.surface() : fill);
+            g.setFill(empty ? text.deriveColor(0, 1, 1, 0.55) : text);
+            g.fillText(String.valueOf(count), t.x() + t.w() / 2, t.y() + t.h() / 2);
+        }
+    }
+
+    static void drawSelectedZone(GraphicsContext g, CourtBounds b, CourtTheme theme,
+                                 List<Zone> zones, Sector selected) {
+        if (selected == null) {
             return;
         }
-
-        Color heatColor = Color.web("#F04424");
-
-        for (Zone zone : zones) {
-            int count = counts.getOrDefault(zone.sector(), 0);
-
-            if (count <= 0) {
-                continue;
+        g.setStroke(theme.pendingRing());   // each theme already picked this to be visible on its surface
+        g.setLineWidth(Math.max(2.5, b.width() * 0.007));
+        for (Zone z : zones) {
+            if (z.sector() == selected) {
+                Tile t = tile(z, b);
+                g.strokeRoundRect(t.x(), t.y(), t.w(), t.h(), t.arc(), t.arc());
             }
-
-            // Square-root scaling makes low-frequency areas visible
-            // without allowing high-frequency areas to dominate.
-            double intensity = Math.sqrt(count / (double) maxCount);
-            double alpha = 0.12 + 0.58 * intensity;
-
-            double x = CourtCoordinates.pixelX(zone.xMin(), b);
-            double y = CourtCoordinates.pixelY(zone.yMax(), b);
-            double width = (zone.xMax() - zone.xMin()) * b.width();
-            double height = (zone.yMax() - zone.yMin()) * b.height();
-
-            g.setFill(Color.color(
-                    heatColor.getRed(),
-                    heatColor.getGreen(),
-                    heatColor.getBlue(),
-                    alpha
-            ));
-
-            g.fillRect(x, y, width, height);
         }
+    }
+
+    private static Color readableOn(Color background) {
+        double luminance = 0.2126 * background.getRed() + 0.7152 * background.getGreen() + 0.0722 * background.getBlue();
+        return luminance > 0.55 ? Color.web("#1f2933") : Color.WHITE;
     }
 
 

@@ -228,7 +228,12 @@
     -fx-text-fill: -app-text-muted;
 }
 
-/* Game cards: the ListView supplies selection, scrolling and keyboard navigation */
+.legend-label {
+    -fx-font-size: 11px;
+    -fx-text-fill: -app-text-muted;
+}
+
+/* Game cards: each cell holds a .game-card graphic, so colours live on the card, not the cell */
 .game-list {
     -fx-background-color: transparent;
     -fx-background-insets: 0;
@@ -239,7 +244,10 @@
     -fx-background-color: transparent;
 }
 
-.game-list .list-cell {
+.game-list .list-cell,
+.game-list .list-cell:filled:hover,
+.game-list .list-cell:filled:selected,
+.game-list .list-cell:filled:selected:focused {
     -fx-background-color: transparent;
     -fx-padding: 0 0 8 0;
 }
@@ -256,7 +264,6 @@
 .game-list .list-cell:selected .game-card {
     -fx-background-color: -app-accent-soft;
     -fx-border-color: -app-accent-strong;
-    -fx-text-fill: -app-accent-strong;
 }
 
 .game-card-title {
@@ -287,26 +294,6 @@
     -fx-padding: 5px;
 }
 
-/* Game list: keep text readable when selected */
-.game-list .list-cell {
-    -fx-text-fill: -app-text;
-}
-
-.game-list .list-cell:filled:selected {
-    -fx-background-color: -app-accent-soft;
-    -fx-text-fill: -app-accent-strong;
-}
-
-.game-list .list-cell:filled:selected .text {
-    -fx-fill: -app-accent-strong;
-}
-
-.game-list .list-cell:filled:selected:hover {
-    -fx-background-color: -app-accent-soft;
-}
-
-/* Preserve readable text when the list loses focus */
-.game-list .list-cell:filled:selected:focused {
-    -fx-background-color: -app-accent-soft;
-    -fx-text-fill: -app-accent-strong;
+.side-panel .compact-toggle {
+    -fx-padding: 7 4 7 4;
 }

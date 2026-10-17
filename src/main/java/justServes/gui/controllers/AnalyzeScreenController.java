@@ -1,26 +1,32 @@
-
 package justServes.gui.controllers;
 
-import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import justServes.AppConstants;
 import justServes.AppState;
-import justServes.gui.court.CourtView;
-import justServes.gui.court.DisplayMode;
+import justServes.gui.court.*;
+import justServes.gui.theme.Palette;
 import justServes.models.Game;
+import justServes.models.Outcome;
 import justServes.models.Serve;
 import justServes.models.ServeType;
 import justServes.services.*;
+import justServes.util.CourtPoint;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
 import java.util.OptionalDouble;
 
 public class AnalyzeScreenController implements ScreenController {
 
+    @FXML private HBox receiverBox;
+    private Integer selectedReceiverCount;
     @FXML private ListView<GameSummary> gameList;
     @FXML private Label gameTitleLabel, hintLabel, scopeTitleLabel, scopeDetailLabel;
     @FXML private StackPane courtHolder;
@@ -30,6 +36,16 @@ public class AnalyzeScreenController implements ScreenController {
     @FXML private ProgressBar aceBar, shakyBar, returnedBar, outBar;
     @FXML private Label aceValueLabel, shakyValueLabel,
             returnedValueLabel, outValueLabel;
+    @FXML private Region legendBar;
+
+    /** Every receiver count shares one layout today. If layouts ever differ, analysis needs a receiver-count filter. */
+    private static final int LAYOUT_RECEIVER_COUNT = AppConstants.DEFAULT_RECEIVER_COUNT;
+
+    private static final DateTimeFormatter CARD_DATE_FORMAT =
+            DateTimeFormatter.ofPattern("d MMM, HH:mm").withZone(ZoneId.systemDefault());
+
+    private static final DateTimeFormatter GAME_DATE_FORMAT =
+            DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm").withZone(ZoneId.systemDefault());
 
     private final StatsService statsService = new StatsService();
     private final SectorService sectorService = new SectorService();
@@ -40,24 +56,28 @@ public class AnalyzeScreenController implements ScreenController {
     private List<Serve> selectedServes = List.of();
     private Sector selectedSector;
     private ServeType selectedServeType;
-
     private boolean updatingSelection;
+    private boolean reloading;
 
-    private static final DateTimeFormatter GAME_DATE_FORMAT =
-            DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm")
-                    .withZone(ZoneId.systemDefault());
+    // ---------- setup ----------
 
     @FXML
     private void initialize() {
         configureServeTypeToggles();
         configureGameList();
 
+        colour(aceBar, Outcome.ACE);
+        colour(shakyBar, Outcome.SHAKY);
+        colour(returnedBar, Outcome.RETURNED);
+        colour(outBar, Outcome.OUT);
+        configureReceiverToggles();
+
         clearZoneButton.setOnAction(event -> {
             selectedSector = null;
             refreshAnalysis();
         });
-
         clearZoneButton.setDisable(true);
+
         setEmptyState();
     }
 
@@ -69,19 +89,47 @@ public class AnalyzeScreenController implements ScreenController {
         courtView.setDisplayMode(DisplayMode.ANALYZE);
         courtView.setTheme(state.getTheme().court());
         courtView.setOnCourtClicked(this::handleCourtClick);
-
         courtHolder.getChildren().setAll(courtView);
 
-        state.themeProperty().addListener((observable, oldTheme, newTheme) -> {
-            if (courtView != null) {
-                courtView.setTheme(newTheme.court());
-            }
+        applyLegend(state.getTheme().court());
+        state.themeProperty().addListener((obs, oldTheme, newTheme) -> {
+            courtView.setTheme(newTheme.court());
+            applyLegend(newTheme.court());
         });
     }
 
     @Override
     public void onShow() {
         reloadGames();
+    }
+
+    private void configureReceiverToggles() {
+        ToggleGroup group = new ToggleGroup();
+        for (Node node : receiverBox.getChildren()) {
+            ToggleButton button = (ToggleButton) node;
+            button.setToggleGroup(group);
+            button.setUserData("All".equals(button.getText()) ? null : Integer.valueOf(button.getText()));
+        }
+        group.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
+            if (newToggle == null) {                       // clicking the selected one must not leave it empty
+                if (oldToggle != null) {
+                    group.selectToggle(oldToggle);
+                }
+                return;
+            }
+            selectedReceiverCount = (Integer) newToggle.getUserData();
+            selectedSector = null;                         // zones differ between layouts
+            refreshAnalysis();
+        });
+    }
+
+    private static void colour(ProgressBar bar, Outcome outcome) {
+        bar.setStyle("-fx-accent: " + Palette.hex(OutcomeColours.of(outcome)) + ";");
+    }
+
+    private void applyLegend(CourtTheme court) {
+        legendBar.setStyle("-fx-background-radius: 5; -fx-background-color: linear-gradient(to right, "
+                + Palette.hex(HeatScale.low(court)) + ", " + Palette.hex(HeatScale.high(court)) + ");");
     }
 
     private void configureServeTypeToggles() {
@@ -119,112 +167,115 @@ public class AnalyzeScreenController implements ScreenController {
         });
     }
 
-    private String formatPercentage(OptionalDouble value) {
-        if (value.isEmpty()) {
-            return "-";
-        }
-        return String.format("%.0f%%", value.getAsDouble() * 100);
-    }
-
     private void configureGameList() {
+        gameList.setPlaceholder(new Label("No games yet"));
+
         gameList.setCellFactory(list -> new ListCell<>() {
             @Override
             protected void updateItem(GameSummary summary, boolean empty) {
                 super.updateItem(summary, empty);
-
+                setText(null);
                 if (empty || summary == null) {
-                    setText(null);
                     setGraphic(null);
                     return;
                 }
 
+                Label title = new Label("Game " + summary.game().getId());
+                title.getStyleClass().add("game-card-title");
+
                 String date = summary.game().getStartedAt() == null
                         ? "Unknown date"
-                        : GAME_DATE_FORMAT.format(summary.game().getStartedAt());
+                        : CARD_DATE_FORMAT.format(summary.game().getStartedAt());
+                Label detail = new Label(date + " · " + summary.serves()
+                        + (summary.serves() == 1 ? " serve" : " serves"));
+                detail.getStyleClass().add("game-card-detail");
 
-                setText(date
-                        + "\n" + "Accuracy: " + formatPercentage(summary.accuracy()) + " | Ace rate: " + formatPercentage(summary.aceRate()));
+                Label stats = new Label("Accuracy " + formatPercentage(summary.accuracy())
+                        + " · Ace rate " + formatPercentage(summary.aceRate()));
+                stats.getStyleClass().add("game-card-stats");
+
+                VBox card = new VBox(2, title, detail, stats);
+                card.getStyleClass().add("game-card");
+                setGraphic(card);
             }
         });
 
-        gameList.getSelectionModel().selectedItemProperty()
-                .addListener((observable, oldSummary, newSummary) -> {
-                    if (newSummary == null) {
-                        selectedGame = null;
-                        selectedServes = List.of();
-                        selectedSector = null;
-                        refreshAnalysis();
-                        return;
-                    }
-
-                    selectedGame = newSummary.game();
-                    selectedServes = state.getGameService().servesFor(selectedGame);
-                    selectedSector = null;
-
-                    refreshAnalysis();
-                });
+        gameList.getSelectionModel().selectedItemProperty().addListener((obs, oldSummary, newSummary) -> {
+            if (!reloading) {
+                applySelection(newSummary, false);
+            }
+        });
     }
+
+    // ---------- games and selection ----------
 
     private void reloadGames() {
         if (state == null) {
             return;
         }
+        int previousId = selectedGame == null ? -1 : selectedGame.getId();
+        GameService service = state.getGameService();
 
-        Game previouslySelected = selectedGame;
-
-        List<GameSummary> summaries = state.getGameService().listGames()
-                .stream()
-                .map(game -> GameSummary.of(
-                        game,
-                        state.getGameService().servesFor(game)))
+        List<GameSummary> summaries = service.listGames().stream()
+                .map(game -> GameSummary.of(game, service.servesFor(game)))
                 .toList();
 
-        gameList.getItems().setAll(summaries);
-
         GameSummary toSelect = summaries.stream()
-                .filter(summary -> previouslySelected != null
-                        && summary.game().getId() == previouslySelected.getId())
+                .filter(s -> s.game().getId() == previousId)
                 .findFirst()
                 .orElse(summaries.isEmpty() ? null : summaries.getFirst());
 
-        if (toSelect == null) {
-            gameList.getSelectionModel().clearSelection();
+        reloading = true;   // the selection listener stays quiet while the list is rebuilt
+        try {
+            gameList.getItems().setAll(summaries);
+            if (toSelect == null) {
+                gameList.getSelectionModel().clearSelection();
+            } else {
+                gameList.getSelectionModel().select(toSelect);
+            }
+        } finally {
+            reloading = false;
+        }
+        applySelection(toSelect, toSelect != null && toSelect.game().getId() == previousId);
+    }
+
+    private void applySelection(GameSummary summary, boolean keepSector) {
+        if (summary == null) {
             selectedGame = null;
             selectedServes = List.of();
             selectedSector = null;
-            refreshAnalysis();
         } else {
-            gameList.getSelectionModel().select(toSelect);
+            selectedGame = summary.game();
+            selectedServes = state.getGameService().servesFor(selectedGame);
+            if (!keepSector) {
+                selectedSector = null;
+            }
         }
+        refreshAnalysis();
     }
 
-    private void handleCourtClick(justServes.util.CourtPoint point) {
+    private void handleCourtClick(CourtPoint point) {
         if (selectedGame == null) {
             return;
         }
-
-        try {
-            selectedSector = sectorService.sectorOf(
-                    point.x(),
-                    point.y(),
-                    justServes.AppConstants.DEFAULT_RECEIVER_COUNT
-            );
-            refreshAnalysis();
-        } catch (IllegalArgumentException exception) {
-            hintLabel.setText("That point is outside the court.");
-        }
+        Sector clicked = sectorService.sectorOf(point.x(), point.y(), currentFilter().layout());
+        selectedSector = clicked == selectedSector ? null : clicked;   // clicking the selected zone clears it
+        refreshAnalysis();
     }
+
+    // ---------- refreshing the screen ----------
 
     private void refreshAnalysis() {
         if (courtView == null) {
             return;
         }
+
         boolean hasGame = selectedGame != null;
         clearZoneButton.setDisable(!hasGame || selectedSector == null);
+
         if (!hasGame) {
             courtView.setHeatmapCounts(null);
-            courtView.setServes(List.of(), justServes.AppConstants.DEFAULT_RECEIVER_COUNT);
-            gameTitleLabel.setText("No game selected");
+            courtView.setSelectedSector(null);
             setEmptyState();
             return;
         }
@@ -232,46 +283,36 @@ public class AnalyzeScreenController implements ScreenController {
         String date = selectedGame.getStartedAt() == null
                 ? "Unknown date"
                 : GAME_DATE_FORMAT.format(selectedGame.getStartedAt());
-        gameTitleLabel.setText("Game · " + date);
-        Map<Sector, Integer> counts =
-                statsService.sectorCounts(selectedServes, selectedServeType);
-        courtView.setHeatmapCounts(counts);
+        gameTitleLabel.setText("Game " + selectedGame.getId() + " · " + date);
 
-        int receiverCount = selectedServes.isEmpty()
-                ? justServes.AppConstants.DEFAULT_RECEIVER_COUNT
-                : selectedServes.getLast().getReceiverCount();
-
-        courtView.setServes(List.of(), receiverCount);
-
-        StatsFilter filter = new StatsFilter(selectedSector, selectedServeType);
+        StatsFilter filter = currentFilter();
+        courtView.setZones(filter.layout());
+        courtView.setHeatmapCounts(statsService.sectorCounts(selectedServes, filter));
+        courtView.setSelectedSector(selectedSector);
         OutcomeStats outcomes = statsService.outcomes(selectedServes, filter);
 
-        updateOutcome(aceBar, aceValueLabel, outcomes, justServes.models.Outcome.ACE);
-        updateOutcome(shakyBar, shakyValueLabel, outcomes, justServes.models.Outcome.SHAKY);
-        updateOutcome(returnedBar, returnedValueLabel, outcomes, justServes.models.Outcome.RETURNED);
-        updateOutcome(outBar, outValueLabel, outcomes, justServes.models.Outcome.OUT);
+        int inView = statsService.outcomes(selectedServes, filter.withSector(null)).total();
+        String receivers = selectedReceiverCount == null ? ""
+                : " · " + selectedReceiverCount + (selectedReceiverCount == 1 ? " receiver" : " receivers");
+        scopeDetailLabel.setText((selectedSector == null
+                ? inView + (inView == 1 ? " serve" : " serves")
+                : outcomes.total() + " of " + inView + " serves") + receivers);
 
-        scopeTitleLabel.setText(selectedSector == null
-                ? "Whole court"
-                : formatSector(selectedSector));
+        updateOutcome(aceBar, aceValueLabel, outcomes, Outcome.ACE);
+        updateOutcome(shakyBar, shakyValueLabel, outcomes, Outcome.SHAKY);
+        updateOutcome(returnedBar, returnedValueLabel, outcomes, Outcome.RETURNED);
+        updateOutcome(outBar, outValueLabel, outcomes, Outcome.OUT);
 
-        scopeDetailLabel.setText(outcomes.total() + " matching serves");
+        scopeTitleLabel.setText(selectedSector == null ? "Whole court" : formatSector(selectedSector));
 
         hintLabel.setText(selectedSector == null
-                ? "Shading = number of serves · click a zone to focus it"
-                : "Focused on " + formatSector(selectedSector)
-                  + " · click another zone to change focus");
+                ? "Click a zone to focus it"
+                : "Focused on " + formatSector(selectedSector) + " · click it again to clear");
     }
 
-    private void updateOutcome(
-            ProgressBar bar,
-            Label valueLabel,
-            OutcomeStats stats,
-            justServes.models.Outcome outcome) {
-
+    private void updateOutcome(ProgressBar bar, Label valueLabel, OutcomeStats stats, Outcome outcome) {
         bar.setProgress(stats.share(outcome));
-        valueLabel.setText(stats.count(outcome) + "  ·  "
-                + Math.round(stats.share(outcome) * 100) + "%");
+        valueLabel.setText(stats.count(outcome) + "  ·  " + Math.round(stats.share(outcome) * 100) + "%");
     }
 
     private void setEmptyState() {
@@ -283,11 +324,18 @@ public class AnalyzeScreenController implements ScreenController {
         for (ProgressBar bar : List.of(aceBar, shakyBar, returnedBar, outBar)) {
             bar.setProgress(0);
         }
-
-        for (Label label : List.of(
-                aceValueLabel, shakyValueLabel, returnedValueLabel, outValueLabel)) {
+        for (Label label : List.of(aceValueLabel, shakyValueLabel, returnedValueLabel, outValueLabel)) {
             label.setText("0  ·  0%");
         }
+    }
+
+    // ---------- formatting ----------
+
+    private String formatPercentage(OptionalDouble value) {
+        if (value.isEmpty()) {
+            return "-";
+        }
+        return String.format("%.0f%%", value.getAsDouble() * 100);
     }
 
     private String formatSector(Sector sector) {
@@ -298,12 +346,14 @@ public class AnalyzeScreenController implements ScreenController {
             if (!result.isEmpty()) {
                 result.append(' ');
             }
-
             result.append(Character.toUpperCase(word.charAt(0)))
                     .append(word.substring(1));
         }
 
         return result.toString();
     }
-}
 
+    private StatsFilter currentFilter() {
+        return new StatsFilter(selectedSector, selectedServeType, selectedReceiverCount);
+    }
+}
