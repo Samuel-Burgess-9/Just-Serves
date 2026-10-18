@@ -1,8 +1,11 @@
 package justServes;
 
+import justServes.gui.theme.AppTheme;
+import justServes.gui.theme.AppThemes;
 import justServes.models.Game;
 import justServes.models.ServeType;
 import justServes.repo.Database;
+import justServes.settings.SettingsStore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -80,5 +83,31 @@ class AppStateTest {
         Game game = state.getGameService().startGame();
 
         assertTrue(game.getId() > 0);
+    }
+
+    @Test
+    void theChosenThemeIsRememberedNextTime() {
+        SettingsStore settings = SettingsStore.inMemory();
+        AppTheme other = AppThemes.ALL.stream()
+                .filter(t -> !t.equals(AppThemes.DEFAULT)).findFirst().orElseThrow();
+
+        AppState first = new AppState(Database.inMemory(), settings);
+        first.setTheme(other);
+        first.close();
+
+        AppState second = new AppState(Database.inMemory(), settings);
+        assertEquals(other, second.getTheme());
+        second.close();
+    }
+
+    @Test
+    void anUnknownSavedThemeFallsBackToTheDefault() {
+        SettingsStore settings = SettingsStore.inMemory();
+        settings.put(AppState.THEME_SETTING, "Deleted theme");
+
+        AppState restored = new AppState(Database.inMemory(), settings);
+
+        assertEquals(AppThemes.DEFAULT, restored.getTheme());
+        restored.close();
     }
 }

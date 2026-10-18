@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="justServes.gui.controllers.ServingStatsScreenController"
+            prefWidth="1100" prefHeight="694">
+
+    <!-- Left: which games to include, and headline numbers for them -->
+    <left>
+        <VBox spacing="18" styleClass="side-panel" prefWidth="260" minWidth="220" maxWidth="300">
+            <padding>
+                <Insets top="16" right="16" bottom="16" left="16"/>
+            </padding>
+
+            <VBox spacing="8">
+                <Label text="DATASET" styleClass="panel-title"/>
+                <GridPane fx:id="datasetBox" hgap="8" vgap="8">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0"/>
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0"/>
+                    </columnConstraints>
+                    <ToggleButton text="All time" selected="true" maxWidth="Infinity"
+                                  GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                    <ToggleButton text="Last 10" maxWidth="Infinity"
+                                  GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                    <ToggleButton text="Last 5" maxWidth="Infinity"
+                                  GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                    <ToggleButton text="Current Game" styleClass="compact-toggle" maxWidth="Infinity"
+                                  GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                </GridPane>
+            </VBox>
+
+            <VBox spacing="8">
+                <Label text="OVERVIEW" styleClass="panel-title"/>
+                <GridPane hgap="8" vgap="8" styleClass="stat-card">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="ALWAYS"/>
+                        <ColumnConstraints halignment="RIGHT"/>
+                    </columnConstraints>
+
+                    <Label text="Games analysed" styleClass="stat-name"
+                           GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                    <Label fx:id="matchesAnalysedLabel" text="-" styleClass="stat-value"
+                           GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                    <Label text="Total serves" styleClass="stat-name"
+                           GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                    <Label fx:id="totalServesLabel" text="-" styleClass="stat-value"
+                           GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                    <Label text="Accuracy" styleClass="stat-name"
+                           GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                    <Label fx:id="accuracyLabel" text="-" styleClass="stat-value"
+                           GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+                    <Label text="Ace rate" styleClass="stat-name"
+                           GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                    <Label fx:id="aceRateLabel" text="-" styleClass="stat-value"
+                           GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+
+                    <Label text="Out rate" styleClass="stat-name"
+                           GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+                    <Label fx:id="outRateLabel" text="-" styleClass="stat-value"
+                           GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+                </GridPane>
+            </VBox>
+        </VBox>
+    </left>
+
+    <!-- Centre: title strip, the court heatmap (CourtView is added in code), legend -->
+    <center>
+        <BorderPane>
+            <top>
+                <HBox alignment="CENTER_LEFT" spacing="16" styleClass="top-strip"
+                      minHeight="48" prefHeight="48" maxHeight="48">
+                    <padding>
+                        <Insets left="16" right="16"/>
+                    </padding>
+                    <Label fx:id="gameTitleLabel" text="Serving Stats" styleClass="game-title"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="hintLabel" text="Click a zone to focus it" styleClass="hint-label"/>
+                </HBox>
+            </top>
+            <center>
+                <StackPane fx:id="courtHolder">
+                    <padding>
+                        <Insets top="16" right="16" bottom="16" left="16"/>
+                    </padding>
+                </StackPane>
+            </center>
+            <bottom>
+                <HBox alignment="CENTER" spacing="8">
+                    <padding>
+                        <Insets bottom="12"/>
+                    </padding>
+                    <Label text="Fewer serves" styleClass="legend-label"/>
+                    <Region fx:id="legendBar" prefWidth="160" minHeight="10" prefHeight="10" maxHeight="10"/>
+                    <Label text="More serves" styleClass="legend-label"/>
+                </HBox>
+            </bottom>
+        </BorderPane>
+    </center>
+
+    <!-- Right: filters, then the outcome breakdown for them -->
+    <right>
+        <VBox spacing="18" styleClass="side-panel" prefWidth="300" minWidth="260" maxWidth="340">
+            <padding>
+                <Insets top="16" right="16" bottom="16" left="16"/>
+            </padding>
+
+            <VBox spacing="8">
+                <Label text="SERVE TYPE" styleClass="panel-title"/>
+                <FlowPane hgap="6" vgap="6">
+                    <ToggleButton fx:id="allToggle" text="All" selected="true"/>
+                    <ToggleButton fx:id="topspinToggle" text="Topspin"/>
+                    <ToggleButton fx:id="floatToggle" text="Float"/>
+                    <ToggleButton fx:id="leftSpinToggle" text="Left spin"/>
+                    <ToggleButton fx:id="rightSpinToggle" text="Right spin"/>
+                </FlowPane>
+            </VBox>
+
+            <VBox spacing="8">
+                <Label text="RECEIVERS" styleClass="panel-title"/>
+                <HBox fx:id="receiverBox" spacing="4">
+                    <ToggleButton text="All" selected="true" styleClass="compact-toggle" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                    <ToggleButton text="1" styleClass="compact-toggle" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                    <ToggleButton text="2" styleClass="compact-toggle" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                    <ToggleButton text="3" styleClass="compact-toggle" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                    <ToggleButton text="4" styleClass="compact-toggle" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                    <ToggleButton text="5" styleClass="compact-toggle" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                    <ToggleButton text="6" styleClass="compact-toggle" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                </HBox>
+            </VBox>
+
+            <VBox spacing="8">
+                <Label text="COURT SHOWS" styleClass="panel-title"/>
+                <FlowPane fx:id="outcomeFilterBox" hgap="6" vgap="6">
+                    <ToggleButton text="All" selected="true"/>
+                    <ToggleButton text="Ace"/>
+                    <ToggleButton text="Shaky"/>
+                    <ToggleButton text="Returned"/>
+                    <ToggleButton text="Out"/>
+                </FlowPane>
+            </VBox>
+
+            <VBox spacing="10">
+                <Label text="OUTCOMES" styleClass="panel-title"/>
+                <GridPane hgap="8" vgap="10">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="64" prefWidth="64"/>
+                        <ColumnConstraints hgrow="ALWAYS"/>
+                        <ColumnConstraints halignment="RIGHT" minWidth="64" prefWidth="64"/>
+                    </columnConstraints>
+
+                    <Label text="Ace" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                    <ProgressBar fx:id="aceBar" progress="0.0" maxWidth="Infinity" styleClass="outcome-bar"
+                                 GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                    <Label fx:id="aceBarLabel" text="-" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+
+                    <Label text="Shaky" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                    <ProgressBar fx:id="shakyBar" progress="0.0" maxWidth="Infinity" styleClass="outcome-bar"
+                                 GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                    <Label fx:id="shakyBarLabel" text="-" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+
+                    <Label text="Returned" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                    <ProgressBar fx:id="returnedBar" progress="0.0" maxWidth="Infinity" styleClass="outcome-bar"
+                                 GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                    <Label fx:id="returnedBarLabel" text="-" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
+
+                    <Label text="Out" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                    <ProgressBar fx:id="outBar" progress="0.0" maxWidth="Infinity" styleClass="outcome-bar"
+                                 GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                    <Label fx:id="outBarLabel" text="-" GridPane.columnIndex="2" GridPane.rowIndex="3"/>
+                </GridPane>
+            </VBox>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <Button fx:id="clearFiltersButton" text="Clear filters" maxWidth="Infinity"/>
+        </VBox>
+    </right>
+
+</BorderPane>

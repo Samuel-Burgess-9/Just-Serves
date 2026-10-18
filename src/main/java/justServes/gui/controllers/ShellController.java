@@ -21,7 +21,9 @@ public class ShellController {
 
     private enum ScreenId {
         RECORD("/fxml/record-screen.fxml"),
-        ANALYZE("/fxml/analyze-screen.fxml");
+        ANALYZE("/fxml/analyze-screen.fxml"),
+        STATS("/fxml/stats-screen.fxml"),
+        SETTINGS("/fxml/settings-screen.fxml");
 
         private final String fxml;
 
@@ -36,7 +38,7 @@ public class ShellController {
     @FXML private StackPane contentHolder;
     @FXML private ToggleGroup navGroup;
     @FXML private ToggleButton recordNav, analyzeNav, statsNav;
-    @FXML private Button exitButton;
+    @FXML private ToggleButton settingsNav;
 
     private final Map<ToggleButton, ScreenId> tabs = new LinkedHashMap<>();
     private final Map<ScreenId, LoadedScreen> loaded = new EnumMap<>(ScreenId.class);
@@ -44,7 +46,7 @@ public class ShellController {
 
     @FXML
     private void initialize() {
-        exitButton.setOnAction(e -> Platform.exit());   // App.stop() then closes the database
+        // App.stop() then closes the database
     }
 
     public void init(AppState state) {
@@ -54,6 +56,8 @@ public class ShellController {
 
         tabs.put(recordNav, ScreenId.RECORD);
         tabs.put(analyzeNav, ScreenId.ANALYZE);
+        tabs.put(statsNav, ScreenId.STATS);
+        tabs.put(settingsNav, ScreenId.SETTINGS);
 
         navGroup.selectedToggleProperty().addListener((obs, oldT, newT) -> {
             if (newT == null) {

@@ -12,6 +12,7 @@ import javafx.stage.Stage;
 import justServes.gui.controllers.ShellController;
 import justServes.gui.theme.AppThemes;
 import justServes.repo.Database;
+import justServes.settings.SettingsStore;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -22,7 +23,7 @@ public class App extends Application {
     private AppState state;
     @Override
     public void start(Stage stage) throws IOException {
-        state = new AppState(Database.forUser());
+        state = new AppState(Database.forUser(), SettingsStore.forUser());
         state.getGameService().resumeOrStartGame();
         FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("/fxml/shell.fxml")
@@ -37,7 +38,6 @@ public class App extends Application {
         stage.setMinHeight(MIN_WINDOW_HEIGHT);
         stage.setMinWidth(MIN_WINDOW_WIDTH);
         stage.setTitle("Just Serves");
-        state.setTheme(AppThemes.NATIONALS);
         stage.show();
     }
 
