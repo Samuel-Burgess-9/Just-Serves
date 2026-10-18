@@ -9,6 +9,10 @@ Click **More info**, then **Run anyway**.
 ## Your data
 Serves are saved on your own computer in a folder called `.justServes` in your user folder. Nothing is uploaded anywhere.
 
-## Something broke?
-Please message me on Discord and include what you were doing.
-Playtest builds open a console window next to the app. If something goes wrong, paste what it says there.
+## Feedback
+I would really appreciate feedback!
+It would be great if you could take the time to fill out this form,
+10 quick multichoice questions and a space for any other feedback you have at the end.
+Please report any bugs there!
+
+https://forms.gle/dNEdgycGHQP9D4aH9
