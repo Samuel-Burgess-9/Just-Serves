@@ -42,7 +42,7 @@
             <ToggleButton fx:id="statsNav" text="Serving Stats"
                           toggleGroup="$navGroup" styleClass="nav-button"/>
             <Region HBox.hgrow="ALWAYS"/>
-            <Button fx:id="exitButton" text="Exit" styleClass="exit-button"/>
+            <ToggleButton fx:id="settingsNav" text="Settings" toggleGroup="$navGroup" styleClass="nav-button"/>
         </HBox>
     </top>
 

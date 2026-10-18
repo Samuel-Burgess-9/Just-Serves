@@ -297,3 +297,30 @@
 .side-panel .compact-toggle {
     -fx-padding: 7 4 7 4;
 }
+
+.stat-card {
+    -fx-background-color: -app-bg;
+    -fx-background-radius: 8;
+    -fx-border-color: -app-border;
+    -fx-border-radius: 8;
+    -fx-padding: 10 12 10 12;
+}
+
+.stat-name {
+    -fx-text-fill: -app-text-muted;
+}
+
+.stat-value {
+    -fx-font-weight: bold;
+}
+
+.settings-card {
+    -fx-background-color: -app-panel;
+    -fx-background-radius: 10;
+    -fx-border-color: -app-border;
+    -fx-border-radius: 10;
+}
+
+.settings-help {
+    -fx-text-fill: -app-text-muted;
+}

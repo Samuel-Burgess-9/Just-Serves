@@ -6,6 +6,7 @@ import justServes.gui.court.CourtTheme;
 import justServes.gui.court.CourtThemes;
 
 import java.util.List;
+import java.util.Optional;
 
 public final class AppThemes {
 
@@ -118,6 +119,10 @@ public final class AppThemes {
                     Color.web("#E1F1FF")
             )
     );
+
+    public static Optional<AppTheme> byName(String name) {
+        return ALL.stream().filter(theme -> theme.name().equals(name)).findFirst();
+    }
 
     public static final List<AppTheme> ALL = List.of(
             PRACTICE,

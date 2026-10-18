@@ -4,9 +4,7 @@ package justServes.gui.controllers;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.*;
 
 import justServes.AppState;
 import justServes.gui.court.*;
@@ -27,31 +25,21 @@ import java.util.OptionalDouble;
 public class ServingStatsScreenController implements ScreenController {
 
     // FXML controls
-    @FXML private ComboBox<String> datasetBox;
     @FXML private Label matchesAnalysedLabel;
     @FXML private Label totalServesLabel;
     @FXML private Label accuracyLabel;
     @FXML private Label aceRateLabel;
     @FXML private Label outRateLabel;
 
-    @FXML private Label acesSummaryLabel;
-    @FXML private Label shakySummaryLabel;
-    @FXML private Label returnedSummaryLabel;
-    @FXML private Label outSummaryLabel;
-
     @FXML private Label gameTitleLabel;
     @FXML private Label hintLabel;
     @FXML private StackPane courtHolder;
-    @FXML private HBox legendBar;
 
-    @FXML private RadioButton allToggle;
-    @FXML private RadioButton topspinToggle;
-    @FXML private RadioButton floatToggle;
-    @FXML private RadioButton leftSpinToggle;
-    @FXML private RadioButton rightSpinToggle;
-
-    @FXML private ComboBox<String> receiverBox;
-    @FXML private ComboBox<String> outcomeFilterBox;
+    @FXML private GridPane datasetBox;
+    @FXML private ToggleButton allToggle, topspinToggle, floatToggle, leftSpinToggle, rightSpinToggle;
+    @FXML private HBox receiverBox;
+    @FXML private FlowPane outcomeFilterBox;
+    @FXML private Region legendBar;
 
     @FXML private ProgressBar aceBar;
     @FXML private ProgressBar shakyBar;
@@ -84,11 +72,6 @@ public class ServingStatsScreenController implements ScreenController {
 
     private boolean updatingSelection;
     private boolean initialised;
-
-    private static final String ALL_TIME = "All time";
-    private static final String LAST_10 = "Last 10 matches";
-    private static final String LAST_5 = "Last 5 matches";
-    private static final String LAST_MATCH = "Last match";
 
     // --------------------------------------------------
     // Initialisation
@@ -178,69 +161,78 @@ public class ServingStatsScreenController implements ScreenController {
         });
     }
 
+    private record Dataset(String name, int limit, boolean currentGameOnly) { }
+
+    private Dataset dataset = new Dataset("All time", Integer.MAX_VALUE, false);
+    private ToggleGroup datasetGroup, receiverGroup, outcomeGroup;
+
     private void configureDatasetSelector() {
-        datasetBox.getItems().setAll(
-                ALL_TIME,
-                LAST_10,
-                LAST_5,
-                LAST_MATCH
-        );
-
-        datasetBox.setValue(ALL_TIME);
-
-        datasetBox.valueProperty().addListener((obs, oldValue, newValue) -> {
-            if (newValue != null) {
-                selectedSector = null;
-                updateDataset();
-                refreshAnalysis();
+        datasetGroup = new ToggleGroup();
+        for (Node node : datasetBox.getChildren()) {
+            ToggleButton button = (ToggleButton) node;
+            button.setToggleGroup(datasetGroup);
+            button.setUserData(switch (button.getText()) {
+                case "Last 10" -> new Dataset("Last 10 games", 10, false);
+                case "Last 5" -> new Dataset("Last 5 games", 5, false);
+                case "Current Game" -> new Dataset("Current Game", 1, true);
+                default -> new Dataset("All time", Integer.MAX_VALUE, false);
+            });
+        }
+        datasetGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
+            if (newToggle == null) {                  // clicking the selected one must not leave it empty
+                if (oldToggle != null) {
+                    datasetGroup.selectToggle(oldToggle);
+                }
+                return;
             }
+            dataset = (Dataset) newToggle.getUserData();
+            selectedSector = null;
+            updateDataset();
+            refreshAnalysis();
         });
     }
 
     private void configureReceiverSelector() {
-        receiverBox.getItems().setAll(
-                "All", "1", "2", "3", "4", "5", "6"
-        );
-        receiverBox.setValue("All");
-
-        receiverBox.valueProperty().addListener((obs, oldValue, newValue) -> {
-            if (newValue == null) {
+        receiverGroup = new ToggleGroup();
+        for (Node node : receiverBox.getChildren()) {
+            ToggleButton button = (ToggleButton) node;
+            button.setToggleGroup(receiverGroup);
+            button.setUserData("All".equals(button.getText()) ? null : Integer.valueOf(button.getText()));
+        }
+        receiverGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
+            if (newToggle == null) {
+                if (oldToggle != null) {
+                    receiverGroup.selectToggle(oldToggle);
+                }
                 return;
             }
-
-            selectedReceiverCount = "All".equals(newValue)
-                    ? null
-                    : Integer.valueOf(newValue);
-
-            // The selected zone may not exist in the new layout.
-            selectedSector = null;
+            selectedReceiverCount = (Integer) newToggle.getUserData();
+            selectedSector = null;                    // the zone may not exist in the new layout
             refreshAnalysis();
         });
     }
 
     private void configureOutcomeSelector() {
-        outcomeFilterBox.getItems().setAll(
-                "All outcomes",
-                "Ace",
-                "Shaky",
-                "Returned",
-                "Out"
-        );
-        outcomeFilterBox.setValue("All outcomes");
-
-        outcomeFilterBox.valueProperty().addListener((obs, oldValue, newValue) -> {
-            if (newValue == null) {
-                return;
-            }
-
-            selectedOutcome = switch (newValue) {
+        outcomeGroup = new ToggleGroup();
+        for (Node node : outcomeFilterBox.getChildren()) {
+            ToggleButton button = (ToggleButton) node;
+            button.setToggleGroup(outcomeGroup);
+            button.setUserData(switch (button.getText()) {
                 case "Ace" -> Outcome.ACE;
                 case "Shaky" -> Outcome.SHAKY;
                 case "Returned" -> Outcome.RETURNED;
                 case "Out" -> Outcome.OUT;
-                default -> null;
-            };
-
+                default -> null;                      // "All"
+            });
+        }
+        outcomeGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
+            if (newToggle == null) {
+                if (oldToggle != null) {
+                    outcomeGroup.selectToggle(oldToggle);
+                }
+                return;
+            }
+            selectedOutcome = (Outcome) newToggle.getUserData();
             selectedSector = null;
             refreshAnalysis();
         });
@@ -264,11 +256,25 @@ public class ServingStatsScreenController implements ScreenController {
             return;
         }
 
-        List<Game> games = new ArrayList<>(
-                state.getGameService().listGames()
-        );
+        selectedGames = dataset.currentGameOnly()
+                ? List.of(state.getGameService().getCurrentGame())
+                : newestGames(dataset.limit());
 
-        // Newest matches first. Fall back to ID when dates are equal.
+        List<Serve> serves = new ArrayList<>();
+        for (Game game : selectedGames) {
+            serves.addAll(state.getGameService().servesFor(game));
+        }
+
+        datasetServes = List.copyOf(serves);
+        gameTitleLabel.setText("Serving Stats · " + dataset.name());
+
+        updateOverview();
+    }
+
+    private List<Game> newestGames(int limit) {
+        List<Game> games = new ArrayList<>(state.getGameService().listGames());
+
+        // Newest games first. Fall back to ID when dates are equal.
         games.sort((a, b) -> {
             Instant aDate = a.getStartedAt();
             Instant bDate = b.getStartedAt();
@@ -289,36 +295,8 @@ public class ServingStatsScreenController implements ScreenController {
             return Integer.compare(b.getId(), a.getId());
         });
 
-        String selection = datasetBox.getValue();
-        if (selection == null) {
-            selection = ALL_TIME;
-        }
-
-        int limit = switch (selection) {
-            case LAST_10 -> 10;
-            case LAST_5 -> 5;
-            case LAST_MATCH -> 1;
-            default -> Integer.MAX_VALUE;
-        };
-
-        selectedGames = games.stream()
-                .limit(limit)
-                .toList();
-
-        List<Serve> serves = new ArrayList<>();
-
-        for (Game game : selectedGames) {
-            serves.addAll(state.getGameService().servesFor(game));
-        }
-
-        datasetServes = List.copyOf(serves);
-
-        updateOverview();
+        return games.stream().limit(limit).toList();
     }
-
-    // --------------------------------------------------
-    // Left-hand statistics
-    // --------------------------------------------------
 
     private void updateOverview() {
         int total = datasetServes.size();
@@ -345,14 +323,6 @@ public class ServingStatsScreenController implements ScreenController {
         aceRateLabel.setText(formatPercentage(aceRate));
         outRateLabel.setText(formatPercentage(outRate));
 
-        OutcomeStats outcomes = statsService.outcomes(
-                datasetServes, StatsFilter.NONE
-        );
-
-        acesSummaryLabel.setText(String.valueOf(outcomes.count(Outcome.ACE)));
-        shakySummaryLabel.setText(String.valueOf(outcomes.count(Outcome.SHAKY)));
-        returnedSummaryLabel.setText(String.valueOf(outcomes.count(Outcome.RETURNED)));
-        outSummaryLabel.setText(String.valueOf(outcomes.count(Outcome.OUT)));
     }
 
     private int countOutcome(List<Serve> serves, Outcome outcome) {
@@ -360,10 +330,6 @@ public class ServingStatsScreenController implements ScreenController {
                 .filter(serve -> serve.getOutcome() == outcome)
                 .count();
     }
-
-    // --------------------------------------------------
-    // Court interaction and refreshing
-    // --------------------------------------------------
 
     private void handleCourtClick(CourtPoint point) {
         if (courtView == null) {
@@ -397,10 +363,6 @@ public class ServingStatsScreenController implements ScreenController {
 
         courtView.setZones(filter.layout());
         courtView.setSelectedSector(selectedSector);
-
-        // The outcome filter affects the heatmap only.
-        // The outcome bars continue to show the outcome distribution
-        // for the selected serve type, receiver count, and court zone.
         List<Serve> heatmapServes = datasetServes.stream()
                 .filter(serve -> selectedOutcome == null
                         || serve.getOutcome() == selectedOutcome)
@@ -424,12 +386,6 @@ public class ServingStatsScreenController implements ScreenController {
         updateOutcome(shakyBar, shakyBarLabel, outcomes, Outcome.SHAKY);
         updateOutcome(returnedBar, returnedBarLabel, outcomes, Outcome.RETURNED);
         updateOutcome(outBar, outBarLabel, outcomes, Outcome.OUT);
-
-        String datasetName = datasetBox.getValue() == null
-                ? ALL_TIME
-                : datasetBox.getValue();
-
-        gameTitleLabel.setText("Serving Stats · " + datasetName);
 
         if (datasetServes.isEmpty()) {
             hintLabel.setText("No serves in this dataset yet.");
@@ -491,30 +447,13 @@ public class ServingStatsScreenController implements ScreenController {
         }
     }
 
-    // --------------------------------------------------
-    // Clearing filters
-    // --------------------------------------------------
-
     private void clearFilters() {
-        updatingSelection = true;
-
         allToggle.setSelected(true);
-        receiverBox.setValue("All");
-        outcomeFilterBox.setValue("All outcomes");
-
-        updatingSelection = false;
-
-        selectedServeType = null;
-        selectedReceiverCount = null;
-        selectedOutcome = null;
+        receiverGroup.selectToggle((ToggleButton) receiverBox.getChildren().getFirst());
+        outcomeGroup.selectToggle((ToggleButton) outcomeFilterBox.getChildren().getFirst());
         selectedSector = null;
-
         refreshAnalysis();
     }
-
-    // --------------------------------------------------
-    // Theme and formatting
-    // --------------------------------------------------
 
     private static void colour(ProgressBar bar, Outcome outcome) {
         bar.setStyle(

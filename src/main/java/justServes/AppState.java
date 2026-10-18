@@ -9,6 +9,7 @@ import justServes.repo.Database;
 import justServes.repo.GameRepository;
 import justServes.repo.ServeRepository;
 import justServes.services.GameService;
+import justServes.settings.SettingsStore;
 
 import java.util.List;
 import java.util.Objects;
@@ -22,13 +23,25 @@ public class AppState {
     private final GameService gameService;
     private int currentReceiverCount = DEFAULT_RECEIVER_COUNT;
     private ServeType currentServeType = DEFAULT_SERVE_TYPE;
-    private final ObjectProperty<AppTheme> theme = new SimpleObjectProperty<>(AppThemes.DEFAULT);
+    public static final String THEME_SETTING = "theme";
+    private final SettingsStore settings;
+    private final ObjectProperty<AppTheme> theme;
 
-    public AppState(Database database) {
+    public AppState(Database database, SettingsStore settings) {
         this.database = database;
+        this.settings = settings;
         GameRepository games = new GameRepository(database);
         ServeRepository serves = new ServeRepository(database);
         this.gameService = new GameService(games, serves);
+        AppTheme saved = settings.get(THEME_SETTING)
+                .flatMap(AppThemes::byName)
+                .orElse(AppThemes.DEFAULT);       // missing, or a theme that no longer exists
+        this.theme = new SimpleObjectProperty<>(saved);
+        this.theme.addListener((obs, old, chosen) -> settings.put(THEME_SETTING, chosen.name()));
+    }
+
+    public AppState(Database database) {
+        this(database, SettingsStore.inMemory());
     }
 
     public GameService getGameService() {
