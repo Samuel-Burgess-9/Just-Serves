@@ -21,7 +21,8 @@ public class ShellController {
 
     private enum ScreenId {
         RECORD("/fxml/record-screen.fxml"),
-        ANALYZE("/fxml/analyze-screen.fxml");
+        ANALYZE("/fxml/analyze-screen.fxml"),
+        STATS("/fxml/stats-screen.fxml");
 
         private final String fxml;
 
@@ -54,6 +55,7 @@ public class ShellController {
 
         tabs.put(recordNav, ScreenId.RECORD);
         tabs.put(analyzeNav, ScreenId.ANALYZE);
+        tabs.put(statsNav, ScreenId.STATS);
 
         navGroup.selectedToggleProperty().addListener((obs, oldT, newT) -> {
             if (newT == null) {

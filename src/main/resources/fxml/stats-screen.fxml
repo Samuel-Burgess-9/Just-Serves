@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="justServes.gui.controllers.ServingStatsScreenController"
+            prefWidth="1100.0"
+            prefHeight="694.0">
+
+    <!-- LEFT: Dataset selection and adaptive statistics -->
+    <left>
+        <VBox prefWidth="245.0"
+              spacing="12.0"
+              styleClass="side-panel">
+
+            <padding>
+                <Insets top="16.0" right="14.0"
+                        bottom="16.0" left="14.0"/>
+            </padding>
+
+            <Label text="Serving Stats" styleClass="panel-title"/>
+
+            <Label text="Dataset" styleClass="section-title"/>
+
+            <ComboBox fx:id="datasetBox"
+                      maxWidth="Infinity"
+                      promptText="Select dataset"/>
+
+            <Separator/>
+
+            <Label text="Overview" styleClass="section-title"/>
+
+            <GridPane hgap="8.0" vgap="12.0">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="58.0"/>
+                    <ColumnConstraints percentWidth="42.0"/>
+                </columnConstraints>
+
+                <Label text="Matches analysed"
+                       GridPane.rowIndex="0"
+                       GridPane.columnIndex="0"/>
+                <Label fx:id="matchesAnalysedLabel"
+                       text="-"
+                       styleClass="stat-value"
+                       GridPane.rowIndex="0"
+                       GridPane.columnIndex="1"/>
+
+                <Label text="Total serves"
+                       GridPane.rowIndex="1"
+                       GridPane.columnIndex="0"/>
+                <Label fx:id="totalServesLabel"
+                       text="-"
+                       styleClass="stat-value"
+                       GridPane.rowIndex="1"
+                       GridPane.columnIndex="1"/>
+
+                <Label text="Accuracy"
+                       GridPane.rowIndex="2"
+                       GridPane.columnIndex="0"/>
+                <Label fx:id="accuracyLabel"
+                       text="-"
+                       styleClass="stat-value"
+                       GridPane.rowIndex="2"
+                       GridPane.columnIndex="1"/>
+
+                <Label text="Ace rate"
+                       GridPane.rowIndex="3"
+                       GridPane.columnIndex="0"/>
+                <Label fx:id="aceRateLabel"
+                       text="-"
+                       styleClass="stat-value"
+                       GridPane.rowIndex="3"
+                       GridPane.columnIndex="1"/>
+
+                <Label text="Out rate"
+                       GridPane.rowIndex="4"
+                       GridPane.columnIndex="0"/>
+                <Label fx:id="outRateLabel"
+                       text="-"
+                       styleClass="stat-value"
+                       GridPane.rowIndex="4"
+                       GridPane.columnIndex="1"/>
+            </GridPane>
+
+            <Separator/>
+
+            <Label text="Outcomes" styleClass="section-title"/>
+
+            <GridPane hgap="8.0" vgap="8.0">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="65.0"/>
+                    <ColumnConstraints percentWidth="35.0"/>
+                </columnConstraints>
+
+                <Label text="Aces"
+                       GridPane.rowIndex="0"
+                       GridPane.columnIndex="0"/>
+                <Label fx:id="acesSummaryLabel"
+                       text="-"
+                       GridPane.rowIndex="0"
+                       GridPane.columnIndex="1"/>
+
+                <Label text="Shaky"
+                       GridPane.rowIndex="1"
+                       GridPane.columnIndex="0"/>
+                <Label fx:id="shakySummaryLabel"
+                       text="-"
+                       GridPane.rowIndex="1"
+                       GridPane.columnIndex="1"/>
+
+                <Label text="Returned"
+                       GridPane.rowIndex="2"
+                       GridPane.columnIndex="0"/>
+                <Label fx:id="returnedSummaryLabel"
+                       text="-"
+                       GridPane.rowIndex="2"
+                       GridPane.columnIndex="1"/>
+
+                <Label text="Out"
+                       GridPane.rowIndex="3"
+                       GridPane.columnIndex="0"/>
+                <Label fx:id="outSummaryLabel"
+                       text="-"
+                       GridPane.rowIndex="3"
+                       GridPane.columnIndex="1"/>
+            </GridPane>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <Label fx:id="datasetHintLabel"
+                   text="Statistics update with the selected dataset."
+                   wrapText="true"
+                   styleClass="hint-label"/>
+
+        </VBox>
+    </left>
+
+    <!-- CENTRE: Shared court visualisation -->
+    <center>
+        <VBox spacing="10.0" alignment="TOP_CENTER">
+            <padding>
+                <Insets top="16.0" right="16.0"
+                        bottom="16.0" left="16.0"/>
+            </padding>
+
+            <Label fx:id="gameTitleLabel"
+                   text="Serving Stats"
+                   styleClass="screen-title"/>
+
+            <Label fx:id="hintLabel"
+                   text="Select filters to analyse your serve targeting."
+                   wrapText="true"
+                   styleClass="hint-label"/>
+
+            <StackPane fx:id="courtHolder"
+                       minWidth="300.0"
+                       minHeight="300.0"
+                       maxWidth="Infinity"
+                       maxHeight="Infinity"
+                       VBox.vgrow="ALWAYS"
+                       styleClass="court-holder"/>
+
+            <HBox fx:id="legendBar"
+                  alignment="CENTER"
+                  spacing="12.0"
+                  styleClass="legend-bar"/>
+        </VBox>
+    </center>
+
+    <!-- RIGHT: Filters first, then the familiar outcomes display -->
+    <right>
+        <VBox prefWidth="250.0"
+              spacing="12.0"
+              styleClass="side-panel">
+
+            <padding>
+                <Insets top="16.0" right="14.0"
+                        bottom="16.0" left="14.0"/>
+            </padding>
+
+            <Label text="Filters" styleClass="panel-title"/>
+
+            <Label text="Serve type" styleClass="section-title"/>
+
+            <VBox spacing="6.0">
+                <RadioButton fx:id="allToggle"
+                             text="All serve types"
+                             selected="true">
+                    <toggleGroup>
+                        <ToggleGroup fx:id="serveTypeToggleGroup"/>
+                    </toggleGroup>
+                </RadioButton>
+
+                <RadioButton fx:id="topspinToggle"
+                             text="Topspin"
+                             toggleGroup="$serveTypeToggleGroup"/>
+
+                <RadioButton fx:id="floatToggle"
+                             text="Float"
+                             toggleGroup="$serveTypeToggleGroup"/>
+
+                <RadioButton fx:id="leftSpinToggle"
+                             text="Left spin"
+                             toggleGroup="$serveTypeToggleGroup"/>
+
+                <RadioButton fx:id="rightSpinToggle"
+                             text="Right spin"
+                             toggleGroup="$serveTypeToggleGroup"/>
+            </VBox>
+
+            <Separator/>
+
+            <Label text="Receivers" styleClass="section-title"/>
+
+            <ComboBox fx:id="receiverBox"
+                      maxWidth="Infinity"
+                      promptText="All receiver counts"/>
+
+            <Separator/>
+
+            <Label text="Outcome filter" styleClass="section-title"/>
+
+            <ComboBox fx:id="outcomeFilterBox"
+                      maxWidth="Infinity"
+                      promptText="All outcomes"/>
+
+            <Separator/>
+
+            <!-- Keep this display consistent with Analyze Game -->
+            <Label text="Outcomes"
+                   styleClass="section-title"/>
+
+            <VBox spacing="8.0">
+
+                <VBox spacing="3.0">
+                    <HBox alignment="CENTER_LEFT">
+                        <Label text="Ace"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="aceBarLabel" text="-"/>
+                    </HBox>
+                    <ProgressBar fx:id="aceBar"
+                                 progress="0.0"
+                                 maxWidth="Infinity"/>
+                </VBox>
+
+                <VBox spacing="3.0">
+                    <HBox alignment="CENTER_LEFT">
+                        <Label text="Shaky"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="shakyBarLabel" text="-"/>
+                    </HBox>
+                    <ProgressBar fx:id="shakyBar"
+                                 progress="0.0"
+                                 maxWidth="Infinity"/>
+                </VBox>
+
+                <VBox spacing="3.0">
+                    <HBox alignment="CENTER_LEFT">
+                        <Label text="Returned"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="returnedBarLabel" text="-"/>
+                    </HBox>
+                    <ProgressBar fx:id="returnedBar"
+                                 progress="0.0"
+                                 maxWidth="Infinity"/>
+                </VBox>
+
+                <VBox spacing="3.0">
+                    <HBox alignment="CENTER_LEFT">
+                        <Label text="Out"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="outBarLabel" text="-"/>
+                    </HBox>
+                    <ProgressBar fx:id="outBar"
+                                 progress="0.0"
+                                 maxWidth="Infinity"/>
+                </VBox>
+
+            </VBox>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <Button fx:id="clearFiltersButton"
+                    text="Clear filters"
+                    maxWidth="Infinity"/>
+
+        </VBox>
+    </right>
+
+</BorderPane>
